@@ -6,6 +6,8 @@ CMDINFO = {
     'help': 'Print top level help',
     'cmd' : 'Prints the available commands',
     'check': 'Check integrity of the config file',
+    'run' : 'Runs the flow',
+    'list': 'List entities'
 }
 
 def top_level_help():
@@ -20,7 +22,7 @@ def cmd_cmd():
 def check_cmd(args):
     if len(args) < 1:
         print "Error: not enough arguments"
-        print "Usage: {0} check <config file>"
+        print "Usage: {0} check <config file>".format(sys.argv[0])
         sys.exit(1)
 
     cfgfile = args[0]
@@ -32,6 +34,64 @@ def check_cmd(args):
         pprint(y)
 
 
+def get_registry(cfgfile):
+    from alchemy import flow, registry, loader, executor
+
+    if 'ALCH_CFG_PATH' in os.environ:
+        cfgpath = os.environ['ALCH_CFG_PATH'].split(':')
+    else:
+        cfgpath = ['.']
+
+    reg = loader.load_config(cfgfile, cfgpath = cfgpath)
+    return reg
+    
+
+def run_cmd(args):
+    if len(args) < 2:
+        print "Error: not enough arguments"
+        print "Usage: {0} run <config file> <flow name>".format(sys.argv[0])
+        sys.exit(1)
+    
+    cfgfile, flow_name = args[0], args[1]
+
+    from alchemy import registry, executor
+    reg = get_registry(cfgfile)
+    flow_inst = registry.get_flow(reg, flow_name)
+
+    executor.execute(reg, flow_inst)
+
+
+def list_units(cfgfile):
+    reg = get_registry(cfgfile)
+
+    for i, (name, u) in enumerate(reg.unit_map.iteritems()):
+        doc = ""
+        if u.func.__doc__:
+            doc = u.func.__doc__
+        print "{0:<3} {1:<20} {2}".format((i+1), name, doc)
+        print "------------------------------------------"
+
+def list_flows(cfgfile):
+    reg = get_registry(cfgfile)
+
+    for i, name in enumerate(reg.flow_map.keys()):
+        print "{0:<2} {1}".format((i+1), name)
+
+def list_cmd(args):
+    if len(args) < 2:
+        print "Error: not enough arguments"
+        print "Usage: {0} list <entity> <config file>".format(sys.argv[0])
+        print "     entity = unit | flow"
+        sys.exit(1)
+    
+    entity, cfgfile = args[0], args[1]
+    if entity == 'unit':
+        list_units(cfgfile)
+    elif entity == 'flow':
+        list_flows(cfgfile)
+    else:
+        print "Error: unknown entity [%s]" % entity
+
 
 def dispatch_cmd(cmd, args):
     if cmd == 'help':
@@ -40,6 +100,10 @@ def dispatch_cmd(cmd, args):
         cmd_cmd()
     elif cmd == 'check':
         check_cmd(args)
+    elif cmd == 'run':
+        run_cmd(args)
+    elif cmd == 'list':
+        list_cmd(args)
     else:
         print "Error: unknown command [{0}]".format(cmd)
         top_level_help()

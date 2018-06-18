@@ -1,0 +1,44 @@
+
+include: [core]
+
+units:
+    a.b:
+        Add Numbers: 
+            func: add
+        Mul Numbers: 
+            func: mul
+        Test: 
+            func: test
+        Test2:
+            func: test2
+
+
+flows:
+    basic_math:
+        - Add Numbers:
+        - Mul Numbers:
+            a: $result
+    #====================================
+    math_flow:
+        - Context:
+            values:
+                a: 2
+                b: 3
+        - $basic_math:
+        - Print context:
+            param_list: null
+    #====================================
+    basic_math_cli:
+        - CLI positional:
+            spec: [filename]
+        - Parse yaml file:
+            filename: $input_filename
+        - $basic_math:
+        - Print context:
+            param_list: [result]
+    #====================================
+    dir_list:
+        - Command:
+            cmd: ls -lrt
+        - Print stream:
+            stream: $stdout

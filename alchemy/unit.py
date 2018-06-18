@@ -45,31 +45,40 @@ def create_by_str(name, module_name, func_name):
     m = importlib.import_module(module_name)
     return create(name, m, func_name)
 
+def mark_as_meta_unit(u):
+    u.unit_type = 'meta'
+
+def is_meta_unit(u):
+    return u.unit_type == 'meta'
+
+def run_unit(u, params, ctx = None):
+    if ctx:
+        pos_args = [ctx]
+    else:
+        pos_args = []
+
+    for a in u.args: 
+        if a != 'ctx':
+            pos_args.append(params[a])
+    
+    kargs = {}
+
+    for a in u.kargs: 
+        try:
+            kargs[a] = params[a]
+        except KeyError:
+            pass
+
+    return u.func(*pos_args, **kargs)
 
 class Unit:
     def __init__(self):
         self.name = None
+        self.unit_type = 'simple'
         self.module = None
         self.func = None
         self.args = None
         self.kargs = None
-
-
-    def run(self, param_dict):
-        pos_args = []
-        for a in self.args: 
-            pos_args.append(param_dict[a])
-        
-        kargs = {}
-
-        for a in self.kargs: 
-            try:
-                kargs[a] = param_dict[a]
-            except KeyError:
-                pass
-
-        return self.func(*pos_args, **kargs)
-
 
 if __name__ == '__main__':
 
@@ -83,7 +92,7 @@ if __name__ == '__main__':
             'd': 10000
         }
 
-    print u.run(p)
+    print run_unit(u, p)
 
     #create_by_str('Test', 'a.b', 'test')
     #create_by_str('Test2', 'a.b', 'test2')
