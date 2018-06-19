@@ -74,6 +74,9 @@ def find_cfg_file(fname, path_list):
         if os.path.exists(actual_path):
             return actual_path
 
+def get_core_config_path():
+    import alchemy
+    return os.path.dirname(alchemy.__file__)
 
 
 def _load_config(fname, seen_cfg, cfgpath, reg = None):
@@ -87,6 +90,9 @@ def _load_config(fname, seen_cfg, cfgpath, reg = None):
         actual_path = find_cfg_file(fname, cfgpath)
     else:
         actual_path = fname
+
+    if actual_path is None:
+        raise Exception("Config file [%s] not found" % fname)
 
     if reg is None:
         reg = registry.Registry()
@@ -105,6 +111,10 @@ def _load_config(fname, seen_cfg, cfgpath, reg = None):
 
 def load_config(fname, cfgpath, reg = None):
     seen_cfg = set()
+
+    core_cfg_path = get_core_config_path()
+    cfgpath.append(core_cfg_path)
+
     reg = _load_config(fname, seen_cfg, cfgpath, reg = None)
     return reg
 

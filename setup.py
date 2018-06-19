@@ -10,5 +10,8 @@ setup(
 
     packages=['alchemy'],
     install_requires=['PyYaml'],
-    scripts=['alch']
+    scripts=['alch'],
+    package_data = {
+        'alchemy': ["*.yml"]
+    }
 )

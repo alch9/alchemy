@@ -106,6 +106,9 @@ def run_command(cmd, errordup = False, background = False, ignore_error = False)
 
 
 def print_stream(stream):
+    """
+    stream: Any valid file like object or stdout, strerr
+    """
     if not stream:
         return
         
