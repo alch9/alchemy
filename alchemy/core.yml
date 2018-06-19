@@ -24,3 +24,12 @@ units:
             func: parse_yaml_file
         Environment:
             func: env_values
+        To list:
+            func: to_list
+            type: meta
+        Delete context:
+            func: delete_ctx
+            type: meta
+        Context required:
+            func: ctx_required
+            type: meta

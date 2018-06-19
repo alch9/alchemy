@@ -175,9 +175,62 @@ def env_values(varlist):
 
     ctx_vars = {}
     for v in varlist:
-        try:
-            ctx_vars["ENV_" + v] = os.environ[v]
-        except Exception as e:
-            pass
+        ctx_vars["ENV_" + v] = os.environ[v]
 
     return ctx_vars
+
+
+def resolve_arg_list(values, args):
+    pos_args = []
+
+    for a in args:
+        if isinstance(a, str) and a.startswith('$'):
+            try:
+                a = a[1:]
+                pos_args.append(values[a])
+            except KeyError:
+                raise Exception("Variable [%s] not found in context" % a)
+        else:
+            pos_args.append(a)
+
+    return pos_args
+
+def to_list(ctx, varlist):
+    """
+    varlist: Values to be converted to python list by resolving the parameters
+    out:
+        list: List of values after resolving
+    Example:
+       varlist:
+            - 1
+            - 2
+            - $x
+
+        If the x == 10 then output will be [1,2,10]
+    """
+
+    l = resolve_arg_list(ctx.values, varlist)
+    return {'list': l}
+
+def delete_ctx(ctx, varlist):
+    """
+    varlist: List of context variables which need to be deleted
+    """
+
+    for v in varlist:
+        del ctx.values[v]
+
+
+def ctx_required(ctx, varlist):
+    """
+    varlist: List of context variables which must exist in the context
+    """
+
+    for v in varlist:
+        if not v in ctx.values:
+            raise Exception("Context variable [%s] is required but not found" % v)
+
+
+
+
+    
