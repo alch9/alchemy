@@ -42,3 +42,12 @@ flows:
             cmd: ls -lrt
         - Print stream:
             stream: $stdout
+    #====================================
+    loop_test:
+        - Loop:
+            count: 3
+            units:
+                - Command:
+                    cmd: ls -lrt
+                - Print stream:
+                    stream: $stdout

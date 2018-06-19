@@ -1,4 +1,5 @@
 
+import os
 from alchemy import executor, flow
 
 def print_ctx(ctx, param_list):
@@ -19,12 +20,36 @@ def print_ctx(ctx, param_list):
     print "--- ctx end --"
 
 def define_context(ctx, values):
+    """
+    values: Dict of values, where each key:value is a mapping to set the context
+    out: Updates the context directly
+    Example:
+        values:
+            a: $b
+            c: 1
+            d: "hello"
+        This defines 3 context variables a,c & d. The value of a is set as the 
+        value of context var 'b'
+    """
     ui = flow.create_unit_inst("anon", values)
     new_values = executor.resolve_unit_inst_params(ctx, ui)
     ctx.values.update(new_values)
 
 
 def loop(ctx, count, units):
+    """
+    count: Number of times the loop will run
+    units: List of units to run
+    Example:
+        count: 3
+        units:
+            - Run command:
+                cmd: ls -lrt
+            - Print stream:
+                stream: $stdout
+
+        This runs the command and prints 3 times
+    """
     ui_list = [] 
     for unit_info in units:
         for ui_name, ui_params in unit_info.iteritems():
@@ -36,6 +61,16 @@ def loop(ctx, count, units):
             executor.execute_unit_inst(ctx, ui)
     
 def run_command(cmd, errordup = False, background = False, ignore_error = False):
+    """
+    cmd: The command string e.g. "uname -a"
+    errdup: (False) Duplicate stderr to stdout
+    background: (False) Run the command in background i.e. the unix '&'
+    ignore_error: (False) Do not fault if the cmd fails with non-exit code
+    out:
+        status_code: The OS exit code of a process
+        stdout: The stdout stream
+        stderr: The stderr stream
+    """
     import subprocess
 
     o_status_code = 0
@@ -127,3 +162,19 @@ def parse_yaml_file(filename):
         return {
             '_status': False
         }
+
+def env_values(varlist):
+    """
+    varlist: List of env variables
+    out:
+        Each env var X is exported as ENV_X in the context
+    """
+
+    ctx_vars = {}
+    for v in varlist:
+        try:
+            ctx_vars["ENV_" + v] = os.environ[v]
+        except Exception as e:
+            pass
+
+    return ctx_vars

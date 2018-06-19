@@ -22,3 +22,5 @@ units:
             type: meta
         Parse yaml file:
             func: parse_yaml_file
+        Environment:
+            func: env_values
