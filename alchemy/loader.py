@@ -83,7 +83,11 @@ def _load_config(fname, seen_cfg, cfgpath, reg = None):
     else:
         raise Exception("Recursive configs [%s]" % fname)
 
-    actual_path = find_cfg_file(fname, cfgpath)
+    if not os.path.exists(fname):
+        actual_path = find_cfg_file(fname, cfgpath)
+    else:
+        actual_path = fname
+
     if reg is None:
         reg = registry.Registry()
         
