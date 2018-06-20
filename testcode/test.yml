@@ -51,3 +51,23 @@ flows:
                     cmd: ls -lrt
                 - Print stream:
                     stream: $stdout
+
+    iter:
+        - Foreach:
+            itemlist: 
+                - 
+                    a: 1
+                    b: 2
+                -
+                    a: 10
+                    b: 20
+                -
+                    a: 100
+                    b: 100 
+            varname: n
+            units:
+                - Export dict:
+                    dict_var: $n
+                - Add Numbers:
+                - Print context:
+                    param_list: [result]

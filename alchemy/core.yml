@@ -33,3 +33,8 @@ units:
         Context required:
             func: ctx_required
             type: meta
+        Foreach:
+            func: for_each
+            type: meta
+        Export dict:
+            func: dict_to_ctx

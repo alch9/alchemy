@@ -231,6 +231,38 @@ def ctx_required(ctx, varlist):
             raise Exception("Context variable [%s] is required but not found" % v)
 
 
+def for_each(ctx, itemlist, varname, units):
+    """
+    input:
+        varlist: List of items to iterate on.
+        varname: The variable name which will be set per iteration. This is deleted once loop finishes
+        units: List of units to run
+    """
+    if not isinstance(varname, str):
+        raise Exception("For each variable name %s must be a string" % varname)
+        
+    ui_list = [] 
+    for unit_info in units:
+        for ui_name, ui_params in unit_info.iteritems():
+            ui = flow.create_unit_inst(ui_name, ui_params)
+            ui_list.append(ui)
 
+    for item in itemlist:
+        ctx.values[varname] = item
+        for ui in ui_list:
+            executor.execute_unit_inst(ctx, ui)
 
-    
+    if varname in ctx.values:        
+        del ctx.values[varname]
+
+def dict_to_ctx(dict_var, keys = None):
+    if not isinstance(dict_var, dict):
+        raise Exception("Dict to ctx, the dict_var must be a dict")
+
+    if keys is None:
+        return dict_var
+    else:
+        d = {}
+        for k in keys:
+            d[k] = dict_var[k]
+        return d

@@ -37,6 +37,9 @@ def get_runtime_params(ui):
             
 
 def create_unit_inst(name, params):
+    if params is None:
+        params = {}
+
     i = UnitInstance(name)
 
     if '@desc' in params:
