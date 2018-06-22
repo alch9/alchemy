@@ -26,6 +26,36 @@ def resolve_unit_inst_params(ctx, ui):
 
     return ui_params
 
+def resolve_list(ctx, arglist):
+    args = []
+
+    for a in arglist:
+        if isinstance(a, str) and a.startswith('$'):
+            try:
+                a = a[1:]
+                args.append(ctx.values[a])
+            except KeyError:
+                raise Exception("Variable [%s] not found in context" % a)
+        else:
+            args.append(a)
+
+    return args
+
+def resolve_dict(ctx, argdict):
+    args = {}
+
+    for k,v in argdict.iteritems():
+        if isinstance(v, str) and v.startswith('$'):
+            try:
+                v = v[1:]
+                args[k] = ctx.values[v]
+            except KeyError:
+                raise Exception("Variable [%s] not found in context" % v)
+        else:
+            args[k] = v
+
+    return args
+
 def execute_unit_inst(ctx, ui):
     if ctx.fault:
         os._exit(1)

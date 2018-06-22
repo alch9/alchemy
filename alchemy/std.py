@@ -180,21 +180,6 @@ def env_values(varlist):
     return ctx_vars
 
 
-def resolve_arg_list(values, args):
-    pos_args = []
-
-    for a in args:
-        if isinstance(a, str) and a.startswith('$'):
-            try:
-                a = a[1:]
-                pos_args.append(values[a])
-            except KeyError:
-                raise Exception("Variable [%s] not found in context" % a)
-        else:
-            pos_args.append(a)
-
-    return pos_args
-
 def to_list(ctx, varlist):
     """
     varlist: Values to be converted to python list by resolving the parameters
@@ -209,7 +194,7 @@ def to_list(ctx, varlist):
         If the x == 10 then output will be [1,2,10]
     """
 
-    l = resolve_arg_list(ctx.values, varlist)
+    l = executor.resolve_list(ctx, varlist)
     return {'list': l}
 
 def delete_ctx(ctx, varlist):
@@ -254,6 +239,7 @@ def for_each(ctx, itemlist, varname, units):
 
     if varname in ctx.values:        
         del ctx.values[varname]
+
 
 def dict_to_ctx(dict_var, keys = None):
     if not isinstance(dict_var, dict):
