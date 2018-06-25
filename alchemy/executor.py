@@ -34,6 +34,7 @@ def execute_unit_inst(ctx, ui):
     ctx.values.update(unit_params)
     ctx.curr_unit_inst = ui
 
+    print ">>", ui.name 
     if unit.is_meta_unit(u):
         ret_val = unit.run_unit(u, ctx.values, ctx = ctx)
     else:

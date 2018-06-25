@@ -113,7 +113,7 @@ def print_stream(stream):
         return
         
     for line in stream:
-        print line
+        print line.rstrip()
         
     
 def cli_args_positional(spec):
