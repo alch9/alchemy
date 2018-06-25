@@ -84,7 +84,7 @@ def _load_config(fname, seen_cfg, cfgpath, reg = None):
     if fname not in seen_cfg:
         seen_cfg.add(fname)
     else:
-        raise Exception("Recursive configs [%s]" % fname)
+        return
 
     if not os.path.exists(fname):
         actual_path = find_cfg_file(fname, cfgpath)
