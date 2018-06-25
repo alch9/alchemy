@@ -64,12 +64,36 @@ def run_cmd(args):
         sys.exit(1)
     
     cfgfile, flow_name = args[0], args[1]
+    log.info("Config file: %s", cfgfile)
+    log.info("Flow name: %s", flow_name)
 
     from alchemy import registry, executor
     reg = get_registry(cfgfile)
     flow_inst = registry.get_flow(reg, flow_name)
 
-    executor.execute(reg, flow_inst)
+    from threading import Thread
+    from Queue import Queue
+
+    progress_q = Queue()
+
+    def print_names(pq):
+        while True:
+            name, event = pq.get()
+            if name == '--end--':
+                log.info("-- END --")
+                break
+            log.info("%s - %s", name, event)
+
+    def notify(name, event):
+        if event == 'start':
+            print ">>", name
+        progress_q.put((name, event))
+        
+    t = Thread(target = print_names, args=(progress_q,))
+    t.start()
+
+    executor.execute(reg, flow_inst, notify = notify)
+    progress_q.put(("--end--", None))
 
 
 def list_units(cfgfile):
@@ -150,9 +174,9 @@ def dispatch_cmd(cmd, args):
 
 def setup_logging():
     global log
-    log = logging.getLogger(__name__)
+    log = logging.getLogger()
 
-    handler = logging.FileHandler('alch.log')
+    handler = logging.FileHandler('alch.log', mode='w')
     handler.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s: %(message)s')
     handler.setFormatter(formatter)

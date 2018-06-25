@@ -1,8 +1,10 @@
 
-import os
+import os, logging
 import flow
 import registry
 import unit
+
+log = logging.getLogger(__name__)
 
 class Context:
     def __init__(self):
@@ -64,7 +66,6 @@ def execute_unit_inst(ctx, ui):
     ctx.values.update(unit_params)
     ctx.curr_unit_inst = ui
 
-    print ">>", ui.name 
     if unit.is_meta_unit(u):
         ret_val = unit.run_unit(u, ctx.values, ctx = ctx)
     else:
@@ -95,7 +96,7 @@ def validate_flow(ctx, ui_list):
             if not registry.is_unit_exists(ctx.registry, ui.name):
                 raise Exception("Unit [%s] not found" % ui.name)
 
-def execute(reg, flow_inst, ctx = None):
+def execute(reg, flow_inst, notify = None, ctx = None):
     if ctx is None:
         ctx = Context()
         ctx.registry = reg
@@ -105,8 +106,15 @@ def execute(reg, flow_inst, ctx = None):
     validate_flow(ctx, ui_list)
 
     for ui in ui_list:
+        if notify:
+            notify(ui.name, 'start')
+
         if flow.is_meta_inst(ui):
+            log.info("execute meta instance: %s", ui.name)
             execute_meta_inst(ctx, ui) 
         else:
             execute_unit_inst(ctx, ui)
+
+        if notify:
+            notify(ui.name, 'end')
             
