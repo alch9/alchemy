@@ -1,4 +1,5 @@
-
+alchemy:
+    cfg_version: '1.0'
 
 units:
     alchemy.std:

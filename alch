@@ -1,6 +1,8 @@
 #!/usr/bin/env python 
 
 import os, sys, argparse
+import logging
+
 
 EXENAME = os.path.basename(sys.argv[0])
 
@@ -10,6 +12,7 @@ CMDINFO = {
     'check': 'Check integrity of the config file',
     'run' : 'Runs the flow',
     'list': 'List entities',
+    'cfglist': 'Detect config files',
     'version': 'Show alchemy version',
 }
 
@@ -99,6 +102,30 @@ def list_cmd(args):
     else:
         print "Error: unknown entity [%s]" % entity
 
+def is_cfg_file(filepath):
+    import yaml
+    try:
+        with open(filepath) as f:
+            data = yaml.load(f)
+            if 'alchemy' in data:
+                return True
+            return False
+    except:
+        return False
+    
+def cfglist_cmd(args):
+    if 'ALCH_CFG_PATH' in os.environ:
+        cfgpath = os.environ['ALCH_CFG_PATH'].split(':')
+    else:
+        cfgpath = ['.']
+
+    for dirpath in cfgpath:
+        for filename in os.listdir(dirpath):
+            fullpath = os.path.join(dirpath, filename)
+            if filename.endswith('.yml') and is_cfg_file(fullpath):
+                print fullpath
+                
+        
 
 def dispatch_cmd(cmd, args):
     if cmd == 'help':
@@ -111,6 +138,8 @@ def dispatch_cmd(cmd, args):
         run_cmd(args)
     elif cmd == 'list':
         list_cmd(args)
+    elif cmd == 'cfglist':
+        cfglist_cmd(args)
     elif cmd == 'version':
         version_cmd(args)
     else:
