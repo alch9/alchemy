@@ -3,6 +3,7 @@
 import os, sys, argparse
 import logging
 
+log = None
 
 EXENAME = os.path.basename(sys.argv[0])
 
@@ -147,6 +148,18 @@ def dispatch_cmd(cmd, args):
         top_level_help()
         sys.exit(1)
 
+def setup_logging():
+    global log
+    log = logging.getLogger(__name__)
+
+    handler = logging.FileHandler('alch.log')
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s: %(message)s')
+    handler.setFormatter(formatter)
+    log.addHandler(handler)
+    log.setLevel(logging.INFO)
+
+
 if __name__ == '__main__':
     if len(sys.argv[1:]) < 1:
         print "Error: not enough arguments"
@@ -156,6 +169,8 @@ if __name__ == '__main__':
 
     cmd, args = sys.argv[1], sys.argv[2:]
 
+    setup_logging()
+    log.info("Logging setup done")
     dispatch_cmd(cmd, args)
 
 
