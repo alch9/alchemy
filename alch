@@ -92,8 +92,10 @@ def run_cmd(args):
     t = Thread(target = print_names, args=(progress_q,))
     t.start()
 
-    executor.execute(reg, flow_inst, notify = notify)
-    progress_q.put(("--end--", None))
+    try:
+        executor.execute(reg, flow_inst, notify = notify)
+    finally:
+        progress_q.put(("--end--", None))
 
 
 def list_units(cfgfile):

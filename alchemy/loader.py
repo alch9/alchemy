@@ -3,12 +3,14 @@ import os
 import yaml
 import inspect
 import importlib
+import logging
 
 import unit
 import registry
 import flow
 
 
+log = logging.getLogger()
 
 def load_module_units(reg, module, units):
     func_dict = dict(inspect.getmembers(module, inspect.isfunction))
@@ -27,6 +29,7 @@ def load_module_units(reg, module, units):
 def load_units(cfg, reg):
     for module_str, module_units in cfg['units'].iteritems():
         m = importlib.import_module(module_str)
+        log.info('Loading units from module at: %s', m.__file__)
         load_module_units(reg, m, module_units)
 
 def load_single_flow(reg, flow_name, flow_info):
