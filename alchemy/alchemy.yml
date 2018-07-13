@@ -2,7 +2,7 @@ alchemy:
     cfg_version: '1.0'
 
 units:
-    alchemy.std:
+    alchemy.builtin_units:
         Print context:
             func: print_ctx
             type: meta
@@ -39,3 +39,22 @@ units:
             type: meta
         Export dict:
             func: dict_to_ctx
+        Query dict:
+            func: query_dict
+            input:
+                dict_var: Python dictionary object
+                pathmap: Dictionary where value is query string and key is what will be put into the context
+            examples: |
+                Assume a dict 
+                some_dict = {
+                    'a': {'b': 10},
+                    'c': {'b': [1,2,3]},
+                }
+
+                Query dict:
+                    dict_var: $some_dict
+                    pathmap:
+                        x:  'a/b'
+                        y:  'c/b'
+               
+                This will map x = 10 and y = [1,2,3]. The x & y will be put in context

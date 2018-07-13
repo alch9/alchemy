@@ -252,3 +252,42 @@ def dict_to_ctx(dict_var, keys = None):
         for k in keys:
             d[k] = dict_var[k]
         return d
+
+def query_dict(ctx, dict_var, pathmap, separator = '/'):
+    for ctx_var, dict_path in pathmap.iteritems():
+        keylist = dict_path.split(separator)
+        val = dict_var
+        for key in keylist:
+            if not isinstance(val, dict):
+                raise Exception("Key=[%s] in path=[%s] is not a dict" % (key, pathmap))
+
+            try:
+                val = val[key]
+            except KeyError:
+                raise Exception("key=[%s] in path=[%s] not found" % (key, pathmap))
+        ctx.values[ctx_var] = val
+
+    
+if __name__ == '__main__':
+    class A:
+        pass
+
+    c = A()
+    c.values = {}
+
+    d = {
+        'a': {
+            'b': 10,
+            'c': {
+                'c1': [1,2,3]
+            }
+        }
+    }
+
+    path = {
+        'x': 'a/b',
+        'y': 'a/c',
+        'z': 'a/c/c1',
+    }
+    query_dict(c, d, path)
+    print c.values
