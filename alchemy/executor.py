@@ -1,8 +1,9 @@
 
-import os, logging
+import os, logging, types
 import flow
 import registry
 import unit
+
 
 log = logging.getLogger(__name__)
 
@@ -70,8 +71,12 @@ def execute_unit_inst(ctx, ui):
         ret_val = unit.run_unit(u, ctx.values, ctx = ctx)
     else:
         ret_val = unit.run_unit(u, ctx.values)
-        
-    if ret_val:
+
+    if isinstance(ret_val, types.NoneType):
+        ctx.values['@result'] = None
+    elif not isinstance(ret_val, dict):
+        ctx.values['@result'] = ret_val
+    else:
         if '_status' in ret_val and ret_val['_status'] == False:
             mark_fault(ctx)
         ctx.values.update(ret_val)

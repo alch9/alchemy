@@ -1,10 +1,12 @@
 alchemy:
     cfg_version: '1.0'
 
-include: [core]
+include: [alchemy]
 
 units:
-    a.b:
+    testcode.b:
+        Greet:
+            func: greet
         Add Numbers: 
             func: add
         Mul Numbers: 
@@ -16,6 +18,11 @@ units:
 
 
 flows:
+    std_value:
+        - Greet:
+            name: World
+        - Print context:
+            param_list: ['@result']
     basic_math:
         - Add Numbers:
         - Mul Numbers:

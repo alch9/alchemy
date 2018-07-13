@@ -1,8 +1,8 @@
 from setuptools import setup
 
 setup(
-    name='Alchemy',
-    version='0.2.0',
+    name='alchemy',
+    version='0.2.3',
     author='Sudeep Jathar',
     author_email='sudeep.jathar@gmail.com',
     url='https://github.com/sudeep9/alchemy',
@@ -15,14 +15,11 @@ setup(
           'Programming Language :: Python :: 2.7',
           'Operating System :: POSIX :: Linux'
     ],
-    entry_points={
-        'console_scripts': [
-            'alch = alch:run',
-        ],
+    entry_points = {
+        'console_scripts': ['alch=alchemy.alch:run'],
     },
     packages=['alchemy'],
     install_requires=['PyYaml', 'docopt'],
-    scripts=['alch'],
     package_data = {
         'alchemy': ["*.yml"]
     }

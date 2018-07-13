@@ -1,6 +1,9 @@
 
 
 
+def greet(name):
+    return "hello " + name
+
 
 #This is a global comment
 
