@@ -10,7 +10,7 @@ import registry
 import flow
 
 
-log = logging.getLogger()
+log = logging.getLogger(__name__)
 
 def load_module_units(reg, module, units):
     func_dict = dict(inspect.getmembers(module, inspect.isfunction))
@@ -72,27 +72,19 @@ def parse_config(fname):
         return cfg
 
 def find_cfg_file(fname, path_list):
-    for p in path_list:
-        actual_path = os.path.join(p, fname)
-        if os.path.exists(actual_path):
-            return actual_path
-
-def get_core_config_path():
-    import alchemy
-    return os.path.dirname(alchemy.__file__)
-
+    mod_name = os.path.splitext(fname)[0]
+    m = __import__(mod_name)
+    file_name = os.path.join(os.path.dirname(m.__file__), fname + '.yml')
+    return file_name
+    
 
 def _load_config(fname, seen_cfg, cfgpath, reg = None):
-    #print "Loading cfg:", fname
     if fname not in seen_cfg:
         seen_cfg.add(fname)
     else:
         return
 
-    if not os.path.exists(fname):
-        actual_path = find_cfg_file(fname, cfgpath)
-    else:
-        actual_path = fname
+    actual_path = find_cfg_file(fname, cfgpath)
 
     if actual_path is None:
         raise Exception("Config file [%s] not found" % fname)
@@ -100,11 +92,11 @@ def _load_config(fname, seen_cfg, cfgpath, reg = None):
     if reg is None:
         reg = registry.Registry()
         
+    log.info("Parsing config: %s", actual_path)
     cfg = parse_config(actual_path)
 
     if 'include' in cfg:
         for dep_cfg_file in cfg['include']:
-            dep_cfg_file += '.yml'
             _load_config(dep_cfg_file, seen_cfg, cfgpath=cfgpath, reg = reg)
 
     load_units(cfg, reg)
@@ -114,9 +106,6 @@ def _load_config(fname, seen_cfg, cfgpath, reg = None):
 
 def load_config(fname, cfgpath, reg = None):
     seen_cfg = set()
-
-    core_cfg_path = get_core_config_path()
-    cfgpath.append(core_cfg_path)
 
     reg = _load_config(fname, seen_cfg, cfgpath, reg = None)
     return reg

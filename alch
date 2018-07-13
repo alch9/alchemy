@@ -185,6 +185,13 @@ def setup_logging():
     log.addHandler(handler)
     log.setLevel(logging.INFO)
 
+def run():
+    cmd, args = sys.argv[1], sys.argv[2:]
+
+    setup_logging()
+    log.info("Logging setup done")
+    dispatch_cmd(cmd, args)
+
 
 if __name__ == '__main__':
     if len(sys.argv[1:]) < 1:
@@ -192,12 +199,7 @@ if __name__ == '__main__':
         top_level_help()
         sys.exit(1)
 
-
-    cmd, args = sys.argv[1], sys.argv[2:]
-
-    setup_logging()
-    log.info("Logging setup done")
-    dispatch_cmd(cmd, args)
+    run()
 
 
     

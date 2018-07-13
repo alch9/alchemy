@@ -15,7 +15,11 @@ setup(
           'Programming Language :: Python :: 2.7',
           'Operating System :: POSIX :: Linux'
     ],
-
+    entry_points={
+        'console_scripts': [
+            'alch = alch:run',
+        ],
+    },
     packages=['alchemy'],
     install_requires=['PyYaml', 'docopt'],
     scripts=['alch'],
