@@ -5,23 +5,22 @@ class Registry:
         self.unit_map = {}
         self.flow_map = {}
 
-def is_unit_exists(reg, name):
-    return name in reg.unit_map
+    def get_unit(self, name):
+        return self.unit_map[name]
 
-def is_flow_exists(reg, name):
-    return name in reg.flow_map
+    def is_unit_exists(self, name):
+        return name in self.unit_map
 
-def get_unit(reg, name):
-    return reg.unit_map[name]
+    def is_flow_exists(self, name):
+        return name in self.flow_map
 
-def add_unit(reg, name, u):
-    reg.unit_map[name] = u
+    def add_unit(self, name, u):
+        self.unit_map[name] = u
 
-def add_flow(reg, flow_name, flow):
-    reg.flow_map[flow_name] = flow
+    def add_flow(self, flow_name, flow):
+        self.flow_map[flow_name] = flow
 
-def get_flow(reg, flow_name):
-    return reg.flow_map[flow_name]
+    def get_flow(self, flow_name):
+        return self.flow_map[flow_name]
 
-def get_unit_list(reg):
-    return reg.unit_map
+

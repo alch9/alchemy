@@ -1,6 +1,6 @@
 
 import os
-from alchemy import executor, flow
+from alchemy import engine, flow, unit
 
 def print_ctx(ctx, param_list):
     """
@@ -19,7 +19,7 @@ def print_ctx(ctx, param_list):
 
     print "--- ctx end --"
 
-def define_context(ctx, values):
+def define_context(ctx, varmap):
     """
     values: Dict of values, where each key:value is a mapping to set the context
     out: Updates the context directly
@@ -31,8 +31,7 @@ def define_context(ctx, values):
         This defines 3 context variables a,c & d. The value of a is set as the 
         value of context var 'b'
     """
-    ui = flow.create_unit_inst("anon", values)
-    new_values = executor.resolve_unit_inst_params(ctx, ui)
+    new_values = engine.resolve_dict(ctx, varmap)
     ctx.values.update(new_values)
 
 
@@ -53,12 +52,11 @@ def loop(ctx, count, units):
     ui_list = [] 
     for unit_info in units:
         for ui_name, ui_params in unit_info.iteritems():
-            ui = flow.create_unit_inst(ui_name, ui_params)
+            ui = unit.UnitInstance(ui_name, ui_params)
             ui_list.append(ui)
 
     for _ in range(count):
-        for ui in ui_list:
-            executor.execute_unit_inst(ctx, ui)
+        engine.run_ui_list(ctx, ui_list, allow_flow=False, notify=None)
     
 def run_command(cmd, errordup = False, background = False, ignore_error = False):
     """
@@ -194,7 +192,7 @@ def to_list(ctx, varlist):
         If the x == 10 then output will be [1,2,10]
     """
 
-    l = executor.resolve_list(ctx, varlist)
+    l = engine.resolve_list(ctx, varlist)
     return {'list': l}
 
 def delete_ctx(ctx, varlist):
@@ -229,13 +227,12 @@ def for_each(ctx, itemlist, varname, units):
     ui_list = [] 
     for unit_info in units:
         for ui_name, ui_params in unit_info.iteritems():
-            ui = flow.create_unit_inst(ui_name, ui_params)
+            ui = unit.UnitInstance(ui_name, ui_params)
             ui_list.append(ui)
 
     for item in itemlist:
         ctx.values[varname] = item
-        for ui in ui_list:
-            executor.execute_unit_inst(ctx, ui)
+        engine.run_ui_list(ctx, ui_list, allow_flow=False)
 
     if varname in ctx.values:        
         del ctx.values[varname]

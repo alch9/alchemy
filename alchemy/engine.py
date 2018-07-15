@@ -1,0 +1,320 @@
+
+import os, logging, types
+import registry
+from alchemy.unit import FunctionUnit, DerivedUnit, UNIT_TYPE_META, UNIT_TYPE_SIMPLE
+
+
+log = logging.getLogger(__name__)
+
+class Context:
+    def __init__(self):
+        self.registry = None
+        self.values = {}
+        self.flow = None
+        self.curr_unit_inst = None
+        self.fault = False
+
+def mark_fault(ctx):
+    ctx.fault = True
+
+def get_static_params(ui_params):
+    params = {}
+    for key, value in ui_params.iteritems():
+        if not isinstance(value, str):
+            params[key] = value
+        elif not value.startswith('$'):
+            params[key] = value
+    return params
+
+
+def get_runtime_params(ui_params):
+    deps = []
+    for key, value in ui_params.iteritems():
+        if isinstance(value, str) and value.startswith('$'):
+            deps.append((key, value[1:]))
+    return deps
+
+def resolve_unit_inst_params(ctx, ui, unit_arg_list, defaults):
+    ui_params = get_static_params(ui.params)
+    runtime_params = get_runtime_params(ui.params)
+
+    for key, ctx_param in runtime_params:
+        if ctx_param not in ctx.values:
+            raise Exception("Param [%s] not found in context" % ctx_param)
+        ui_params[key] = ctx.values[ctx_param]
+
+    if defaults is None:
+        defaults = []
+
+    for arg in unit_arg_list:
+        if arg == 'ctx': continue
+        if arg not in ui_params:
+            if arg not in ctx.values and arg not in defaults:
+                raise Exception("Param [%s] not found in context" % arg)
+            ui_params[arg] = ctx.values[arg]
+
+    return ui_params
+
+def resolve_list(ctx, arglist):
+    args = []
+
+    for a in arglist:
+        if isinstance(a, str) and a.startswith('$'):
+            try:
+                a = a[1:]
+                args.append(ctx.values[a])
+            except KeyError:
+                raise Exception("Variable [%s] not found in context" % a)
+        else:
+            args.append(a)
+
+    return args
+
+def resolve_dict(ctx, argdict):
+    args = {}
+
+    for k,v in argdict.iteritems():
+        if isinstance(v, str) and v.startswith('$'):
+            try:
+                v = v[1:]
+                args[k] = ctx.values[v]
+            except KeyError:
+                raise Exception("Variable [%s] not found in context" % v)
+        else:
+            args[k] = v
+
+    return args
+
+def run_function_unit(u, params, ctx = None):
+    if ctx:
+        pos_args = [ctx]
+    else:
+        pos_args = []
+
+    for a in u.args: 
+        if a != 'ctx':
+            pos_args.append(params[a])
+    
+    kargs = {}
+    for a in u.kargs: 
+        try:
+            kargs[a] = params[a]
+        except KeyError:
+            pass
+
+    return u.func(*pos_args, **kargs)
+
+def run_unit(ctx, u, params, notify = None):
+    if isinstance(u, FunctionUnit):
+        if u.unit_type == UNIT_TYPE_META:
+            return run_function_unit(u, params, ctx = ctx)
+        else:
+            return run_function_unit(u, params, ctx = None)
+    else:
+        return run_derived_unit(ctx, u, params, notify = notify)
+
+def execute_unit_inst(ctx, ui, notify = None):
+    if ctx.fault:
+        os._exit(1)
+
+    if ui.name.startswith('$'):
+        log.info("Sub flow detected: %s", ui.name)
+        flow_name = ui.name[1:]
+        flow = ctx.registry.get_flow(flow_name)
+        flow_params = resolve_unit_inst_params(ctx, ui, flow.get_arg_list(), flow.get_default_vars())
+        ret_val = run_flow(flow, flow_params, ctx=ctx, notify=notify)
+    else:
+        u = ctx.registry.get_unit(ui.name)
+        log.debug("Run UI: %s %s", ui.name, u.get_args())
+        unit_params = resolve_unit_inst_params(ctx, ui, u.get_args(), u.get_default_vars())
+
+        log.debug("Run UI: ctx = %s", ctx.values)
+
+        if isinstance(u, FunctionUnit):
+            ctx.curr_unit_inst = ui
+
+            if u.unit_type == UNIT_TYPE_META:
+                ret_val = run_function_unit(u, unit_params, ctx = ctx)
+            else:
+                ret_val = run_function_unit(u, unit_params, ctx = None)
+        else:
+            ret_val = run_derived_unit(ctx, u, unit_params, notify = notify)
+
+    if isinstance(ret_val, types.NoneType):
+        ctx.values['@result'] = None
+    elif not isinstance(ret_val, dict):
+        ctx.values['@result'] = ret_val
+    else:
+        if '_status' in ret_val and ret_val['_status'] == False:
+            mark_fault(ctx)
+        ctx.values.update(ret_val)
+
+def validate_derived_unit(ctx, u, params):
+    for ui in u.ui_list:
+        if not ctx.registry.is_unit_exists(ui.name):
+            raise Exception("Unit [%s] not found" % ui.name)
+
+    for var in u.input:
+        if var not in params:
+            raise Exception("Context var [%s] is required for unit [%s]" % (var, u.name))
+
+def check_ui_list(ctx, ui_list, allow_flow):
+    for ui in ui_list:
+        if ui.name.startswith('$'):
+            if not allow_flow:
+                raise Exception("Using references to flow [%s] not allowed" % ui.name)
+            else:
+                flow_name = ui.name[1:]
+                if not ctx.registry.is_flow_exists(flow_name):
+                    raise Exception("Referenced flow [%s] not found" % ui.name)
+        else:
+            if not ctx.registry.is_unit_exists(ui.name):
+                raise Exception("Unit [%s] not found" % ui.name)
+                
+def run_ui_list(ctx, ui_list, allow_flow = False, notify = None):
+    check_ui_list(ctx, ui_list, allow_flow)
+
+    for ui in ui_list:
+        if notify:
+            notify(ui.name, 'start')
+
+        execute_unit_inst(ctx, ui)
+
+        if notify:
+            notify(ui.name, 'end')
+        
+def run_derived_unit(ctx, dunit, params, notify = None):
+    validate_derived_unit(ctx, dunit, params)
+
+    newctx = Context()
+    newctx.registry = ctx.registry
+
+    defaults = {}
+    if dunit.defaults:
+        defaults = dunit.defaults
+
+    for var in dunit.input:
+        try:
+            newctx.values[var] = params[var]
+        except KeyError:
+            if var not in defaults:
+                raise
+    
+    log.debug("Run Derived unit: %s %s", dunit.name, params)
+    for ui in dunit.ui_list:
+        if notify:
+            notify(ui.name, 'start')
+
+        log.debug("Unit instance: %s:%s", dunit.name, ui.name)
+        execute_unit_inst(newctx, ui, notify = notify)
+
+        if notify:
+            notify(ui.name, 'end')
+            
+    ret = None
+    if dunit.output:
+        ret = {var: newctx.values[var] for var in dunit.output}
+    return ret
+
+def run_flow(flow, params, notify = None, ctx = None):
+    log.info("Running flow: %s %s", flow.name, params)
+    newctx = Context()
+
+    if ctx is not None:
+        newctx.registry = ctx.registry
+
+    for var in flow.get_arg_list():
+        newctx.values[var] = params[var]
+
+    run_ui_list(newctx, flow.ui_list, allow_flow=True, notify=notify)
+
+    ret = None
+    if flow.output:
+        ret = {var: newctx.values[var] for var in flow.output}
+
+    log.debug("Flow [%s] output: %s", flow.name, ret)
+    return ret
+
+def run_flow_by_name(flow_name, params, notify = None, ctx = None):
+    if not ctx.registry.is_flow_exists(flow_name):
+        raise Exception("Flow [%s] not found" % flow_name)
+
+    flow = ctx.registry.get_flow(flow_name)
+    return run_flow(flow, params, notify=notify, ctx=ctx)
+
+if __name__ == '__main__':
+    import sys
+
+    log = logging.getLogger()
+    log.setLevel(logging.DEBUG)
+
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    log.addHandler(ch) 
+
+    from alchemy.unit import create_unit_by_str, UnitInstance, create_derived_unit
+    from alchemy.flow import create_from_dict
+
+    def add(a,b):
+        return {'result': a+b}
+
+    def mul(a,b):
+        return {'result': a*b}
+
+    def add_ctx(ctx, varmap):
+        val = resolve_dict(ctx, varmap)
+        return val
+    
+
+    add_unit = create_unit_by_str('Add', '__main__', 'add')
+    mul_unit = create_unit_by_str('Mul', '__main__', 'mul')
+    add_ctx_unit = create_unit_by_str('Context', '__main__', 'add_ctx')
+    add_ctx_unit.unit_type = UNIT_TYPE_META
+    double = create_derived_unit('Double', ['num'], ['result'], [
+        UnitInstance('Add', {'a': '$num', 'b': '$num'})        
+    ])
+
+    square = create_derived_unit('Square', ['num'], ['result'], [
+        UnitInstance('Mul', {'a': '$num', 'b': '$num'})        
+    ])
+
+    triple = create_derived_unit('Triple', ['num'], ['result'], [
+        UnitInstance('Double', {}),
+        UnitInstance('Add', {'a': '$result', 'b': '$num'}),
+    ])
+
+    ctx = Context()
+    ctx.registry = registry.Registry()
+    ctx.registry.add_unit('Context', add_ctx_unit)
+    ctx.registry.add_unit('Add', add_unit)
+    ctx.registry.add_unit('Mul', mul_unit)
+    ctx.registry.add_unit('Square', square)
+    ctx.registry.add_unit('Double', double)
+    ctx.registry.add_unit('Triple', triple)
+
+    ab_flow = create_from_dict({
+        'abflow': [
+            { 'input': {'a': "Integer", 'b': "Integer"}, },
+            { 'output': {"ab_result": "Compute value"}, },
+            { 'Add': {}},
+            { 'Square': {'num': '$result'}},
+
+            { 'Context': { 'varmap': { 'ab_result': '$result'}} },
+        ]
+    })
+
+    flow1 = create_from_dict({
+        'flow1': [
+            {'output': {'ab_result': "abc"}},
+            { '$abflow': {'a': 3, 'b': 2}, },
+        ]
+    })
+
+    ctx.registry.add_flow('abflow', ab_flow)
+    ctx.registry.add_flow('flow1', flow1)
+
+    print run_flow_by_name('flow1', {}, ctx=ctx)
+
+    print ctx.values

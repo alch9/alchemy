@@ -46,14 +46,9 @@ def check_cmd(args):
 
 
 def get_registry(cfgfile):
-    from alchemy import flow, registry, loader, executor
+    from alchemy import yconfig
 
-    if 'ALCH_CFG_PATH' in os.environ:
-        cfgpath = os.environ['ALCH_CFG_PATH'].split(':')
-    else:
-        cfgpath = ['.']
-
-    reg = loader.load_config(cfgfile, cfgpath = cfgpath)
+    reg = yconfig.load_config(cfgfile)
     return reg
     
 
@@ -67,9 +62,9 @@ def run_cmd(args):
     log.info("Config file: %s", cfgfile)
     log.info("Flow name: %s", flow_name)
 
-    from alchemy import registry, executor
+    from alchemy import registry, engine
     reg = get_registry(cfgfile)
-    flow_inst = registry.get_flow(reg, flow_name)
+    flow_inst = reg.get_flow(flow_name)
 
     from threading import Thread
     from Queue import Queue
@@ -93,7 +88,9 @@ def run_cmd(args):
     t.start()
 
     try:
-        executor.execute(reg, flow_inst, notify = notify)
+        ctx = engine.Context()
+        ctx.registry = reg
+        engine.run_flow(flow_inst, {}, ctx=ctx, notify=notify)
     finally:
         progress_q.put(("--end--", None))
 
@@ -179,11 +176,11 @@ def setup_logging():
     log = logging.getLogger()
 
     handler = logging.FileHandler('alch.log', mode='w')
-    handler.setLevel(logging.INFO)
+    handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s: %(message)s')
     handler.setFormatter(formatter)
     log.addHandler(handler)
-    log.setLevel(logging.INFO)
+    log.setLevel(logging.DEBUG)
 
 def run():
     cmd, args = sys.argv[1], sys.argv[2:]

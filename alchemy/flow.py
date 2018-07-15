@@ -1,61 +1,42 @@
 
-class UnitInstance:
-    def __init__(self, name):
-        self.name = name
-        self.desc = None
-        self.params = {}
-        self.inst_type = 'simple'
+from alchemy.unit import UnitInstance
 
 class Flow:
     def __init__(self, name):
         self.name = name
-        self.unit_inst_list = []
+        self.input = None
+        self.output = None
+        self.defaults = None
+        self.ui_list = []
+    
+    def get_arg_list(self):
+        if self.input is None:
+            return []
+        return self.input.keys()
 
+    def get_default_vars(self):
+        if self.defaults is None:
+            return None
+        return self.defaults.keys()
 
-def mark_as_meta(ui):
-    ui.inst_type = 'meta'
+def create_flow(name, ui_cfg):
+    f = Flow(name)
+    for ui_dict in ui_cfg:
+        ui_name = ui_dict.keys()[0]
+        if ui_name == 'input':
+            f.input = ui_dict[ui_name]
+        elif ui_name == 'output':
+            f.output = ui_dict[ui_name]
+        elif ui_name == 'defaults':
+            f.defaults = ui_dict[ui_name]
+        else:    
+            ui = UnitInstance(ui_name, ui_dict[ui_name])
+            f.ui_list.append(ui)
+    return f
 
-def is_meta_inst(ui):
-    return ui.inst_type == 'meta'
+def create_from_dict(d):
+    name = d.keys()[0]
+    ui_cfg = d[name]
+    f = create_flow(name, ui_cfg)
 
-def get_static_params(ui):
-    params = {}
-    for key, value in ui.params.iteritems():
-        if not isinstance(value, str):
-            params[key] = value
-        elif not value.startswith('$'):
-            params[key] = value
-    return params
-
-
-def get_runtime_params(ui):
-    deps = []
-    for key, value in ui.params.iteritems():
-        if isinstance(value, str) and value.startswith('$'):
-            deps.append((key, value[1:]))
-    return deps
-            
-
-def create_unit_inst(name, params):
-    if params is None:
-        params = {}
-
-    i = UnitInstance(name)
-
-    if '@desc' in params:
-        i.desc = params['@desc']
-    else:
-        i.desc = name
-
-    i.params = params
-    return i
-
-def create_flow(name):
-    return Flow(name)
-
-def add_unit_inst(flow, inst):
-    flow.unit_inst_list.append(inst)
-
-def get_unit_list(f):
-    return f.unit_inst_list
-        
+    return f
