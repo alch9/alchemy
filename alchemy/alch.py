@@ -174,6 +174,11 @@ def setup_logging():
     log.setLevel(logging.DEBUG)
 
 def run():
+    if len(sys.argv[1:]) < 1:
+        print "Error: not enough arguments"
+        top_level_help()
+        sys.exit(1)
+
     cmd, args = sys.argv[1], sys.argv[2:]
 
     setup_logging()
@@ -182,11 +187,6 @@ def run():
 
 
 if __name__ == '__main__':
-    if len(sys.argv[1:]) < 1:
-        print "Error: not enough arguments"
-        top_level_help()
-        sys.exit(1)
-
     run()
 
 

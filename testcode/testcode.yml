@@ -16,6 +16,20 @@ units:
         Test2:
             func: test2
 
+derivatives:
+    Square:
+        input:
+            num: Integer
+        output:
+            result: Value of the computation
+        units:
+            Context:
+                a: $num
+                b: $num
+            Mul Numbers:
+
+
+
 
 flows:
     std_value:

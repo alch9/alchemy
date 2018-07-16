@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='alchemy',
-    version='0.2.3',
+    version='0.2.7',
     author='Sudeep Jathar',
     author_email='sudeep.jathar@gmail.com',
     url='https://github.com/sudeep9/alchemy',

@@ -40,7 +40,7 @@ class DerivedUnit(Unit):
         if not self.defaults:
             return self.input
 
-        args = [a for a in self.input.keys() if a not in self.defaults]
+        args = [a for a in self.input if a not in self.defaults]
         return args
 
     def get_default_vars(self):
