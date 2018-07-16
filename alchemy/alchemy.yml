@@ -3,10 +3,10 @@ alchemy:
 
 units:
     alchemy.builtin_units:
-        Print context:
+        print-context:
             func: print_ctx
             type: meta
-        Context:
+        context:
             func: define_context 
             type: meta
         Loop:
@@ -14,10 +14,12 @@ units:
             type: meta
         Command:
             func: run_command
-        Print stream:
+        print-stream:
             func: print_stream
-        CLI positional:
+        cli-positional:
             func: cli_args_positional
+            input:
+                spec: List of variables
         To int:
             func: to_int
             type: meta
@@ -45,8 +47,9 @@ units:
             type: meta
         Export dict:
             func: dict_to_ctx
-        Query dict:
+        query-dict:
             func: query_dict
+            type: meta
             input:
                 dict_var: Python dictionary object
                 pathmap: Dictionary where value is query string and key is what will be put into the context
@@ -57,7 +60,7 @@ units:
                     'c': {'b': [1,2,3]},
                 }
 
-                Query dict:
+                query-dict:
                     dict_var: $some_dict
                     pathmap:
                         x:  'a/b'

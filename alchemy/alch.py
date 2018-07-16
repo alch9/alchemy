@@ -167,11 +167,11 @@ def setup_logging():
     log = logging.getLogger()
 
     handler = logging.FileHandler('alch.log', mode='w')
-    handler.setLevel(logging.DEBUG)
+    handler.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s: %(message)s')
     handler.setFormatter(formatter)
     log.addHandler(handler)
-    log.setLevel(logging.DEBUG)
+    log.setLevel(logging.INFO)
 
 def run():
     if len(sys.argv[1:]) < 1:

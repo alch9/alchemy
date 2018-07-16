@@ -259,12 +259,12 @@ def query_dict(ctx, dict_var, pathmap, separator = '/'):
         val = dict_var
         for key in keylist:
             if not isinstance(val, dict):
-                raise Exception("Key=[%s] in path=[%s] is not a dict" % (key, pathmap))
+                raise Exception("Key=[%s] in path=[%s] is not a dict" % (key, dict_path))
 
             try:
                 val = val[key]
             except KeyError:
-                raise Exception("key=[%s] in path=[%s] not found" % (key, pathmap))
+                raise Exception("key=[%s] in path=[%s] not found" % (key, dict_path))
         ctx.values[ctx_var] = val
 
     

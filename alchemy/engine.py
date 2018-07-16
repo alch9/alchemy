@@ -176,7 +176,10 @@ def run_ui_list(ctx, ui_list, allow_flow = False, notify = None):
         if notify:
             notify(ui.name, 'start')
 
+        log.info("") 
+        log.info("Unit instance: %s ---- START", ui.name)
         execute_unit_inst(ctx, ui)
+        log.info("Unit instance: %s ---- END", ui.name)
 
         if notify:
             notify(ui.name, 'end')
