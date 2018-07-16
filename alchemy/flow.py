@@ -6,7 +6,7 @@ class Flow:
         self.name = name
         self.input = None
         self.output = None
-        self.defaults = None
+        self.defaults = {}
         self.ui_list = []
     
     def get_args(self):
@@ -20,8 +20,6 @@ class Flow:
         return args
 
     def get_default_vars(self):
-        if self.defaults is None:
-            return None
         return self.defaults.keys()
 
 def create_flow(name, ui_cfg):

@@ -113,6 +113,8 @@ def run_unit(ctx, u, params, notify = None):
 def execute_unit_inst(ctx, ui, notify = None):
     if ctx.fault:
         os._exit(1)
+    
+    log.info("Run UI: %s", ui.name)
 
     if ui.name.startswith('$'):
         log.info("Sub flow detected: %s", ui.name)
@@ -122,7 +124,7 @@ def execute_unit_inst(ctx, ui, notify = None):
         ret_val = run_flow(flow, flow_params, ctx=ctx, notify=notify)
     else:
         u = ctx.registry.get_unit(ui.name)
-        log.debug("Run UI: %s %s", ui.name, u.get_args())
+        log.info("Run UI: %s %s", ui.name, u.get_args())
         unit_params = resolve_unit_inst_params(ctx, ui, u.get_args())
 
         if isinstance(u, FunctionUnit):
@@ -272,22 +274,22 @@ if __name__ == '__main__':
     add_ctx_unit = create_unit_by_str('Context', '__main__', 'add_ctx')
     add_ctx_unit.unit_type = UNIT_TYPE_META
 
-    double = create_derived_unit('Double', ['num'], ['result'], [
+    double = create_derived_unit('Double', ['num'], ['result'], {}, [
         UnitInstance('Add', {'a': '$num', 'b': '$num'})        
     ])
 
-    add_3 = create_derived_unit('Add3', ['a', 'b', 'c'], ['result'], [
+    add_3 = create_derived_unit('Add3', ['a', 'b', 'c'], ['result'], {}, [
         UnitInstance('Add', {}),
         UnitInstance('Add', {'a': '$result', 'b': '$c'})
     ])
 
     add_3.defaults = {'c': 1}
 
-    square = create_derived_unit('Square', ['num'], ['result'], [
+    square = create_derived_unit('Square', ['num'], ['result'], {}, [
         UnitInstance('Mul', {'a': '$num', 'b': '$num'})        
     ])
 
-    triple = create_derived_unit('Triple', ['num'], ['result'], [
+    triple = create_derived_unit('Triple', ['num'], ['result'], {}, [
         UnitInstance('Double', {}),
         UnitInstance('Add', {'a': '$result', 'b': '$num'}),
     ])

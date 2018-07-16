@@ -21,6 +21,12 @@ units:
         To int:
             func: to_int
             type: meta
+        to-str:
+            func: to_str
+            input:
+                var: Variable to be converted to str
+            output:
+                str_var: Converted variable
         Parse yaml file:
             func: parse_yaml_file
         Environment:

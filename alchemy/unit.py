@@ -35,13 +35,12 @@ class DerivedUnit(Unit):
         self.output = None
         self.defaults = {}
         self.ui_list = None
-        self.req_args = None
 
     def get_args(self):
         if not self.defaults:
             return self.input
 
-        args = [a for a in self.input if a not in self.defaults]
+        args = [a for a in self.input.keys() if a not in self.defaults]
         return args
 
     def get_default_vars(self):
@@ -54,12 +53,13 @@ class UnitInstance:
         self.name = name
         self.params = params
 
-def create_derived_unit(name, input, output, ui_list):
+def create_derived_unit(name, input, output, defaults, ui_list):
     u = DerivedUnit()
     u.name = name
     u.input = input
     u.output = output
     u.ui_list = ui_list
+    u.defaults = defaults
 
     return u
 
@@ -71,13 +71,15 @@ def create_unit_inst_from_dict(d):
 def create_derived_unit_from_dict(name, d):
     unit_input = d.get('input', None)
     unit_output = d.get('output', None)
+    unit_defaults = d.get('defaults', {})
 
     ui_list = []
     for unit_info in d['units']:
         ui = create_unit_inst_from_dict(unit_info)
         ui_list.append(ui)
 
-    return create_derived_unit(name, unit_input, unit_output, ui_list)
+    u = create_derived_unit(name, unit_input, unit_output, unit_defaults, ui_list,)
+    return u
         
 
 def _get_pos_args(spec):

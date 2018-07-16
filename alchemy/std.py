@@ -249,3 +249,6 @@ def dict_to_ctx(dict_var, keys = None):
         for k in keys:
             d[k] = dict_var[k]
         return d
+
+def to_str(var):
+    return {'str_var': str(var)}
