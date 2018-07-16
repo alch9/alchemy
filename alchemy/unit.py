@@ -33,15 +33,20 @@ class DerivedUnit(Unit):
         self.name = None
         self.input = None
         self.output = None
-        self.defaults = None
+        self.defaults = {}
         self.ui_list = None
+        self.req_args = None
 
     def get_args(self):
-        return self.input
+        if not self.defaults:
+            return self.input
+
+        args = [a for a in self.input if a not in self.defaults]
+        return args
 
     def get_default_vars(self):
         if self.defaults is None:
-            return None
+            return []
         return self.defaults.keys()
 
 class UnitInstance:

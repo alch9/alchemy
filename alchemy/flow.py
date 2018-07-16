@@ -9,10 +9,15 @@ class Flow:
         self.defaults = None
         self.ui_list = []
     
-    def get_arg_list(self):
+    def get_args(self):
         if self.input is None:
             return []
-        return self.input.keys()
+
+        if not self.defaults:
+            return self.input.keys()
+
+        args = [a for a in self.input if a not in self.defaults]
+        return args
 
     def get_default_vars(self):
         if self.defaults is None:
