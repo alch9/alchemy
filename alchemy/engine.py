@@ -174,7 +174,7 @@ def run_ui_list(ctx, ui_list, allow_flow = False, notify = None):
 
     for ui in ui_list:
         if notify:
-            notify(ui.name, 'start')
+            notify(ui.get_desc(), 'start')
 
         log.info("") 
         log.info("Unit instance: %s ---- START", ui.name)
@@ -182,7 +182,7 @@ def run_ui_list(ctx, ui_list, allow_flow = False, notify = None):
         log.info("Unit instance: %s ---- END", ui.name)
 
         if notify:
-            notify(ui.name, 'end')
+            notify(ui.get_desc(), 'end')
         
 def run_derived_unit(ctx, dunit, params, notify = None):
     validate_derived_unit(ctx, dunit, params)

@@ -50,8 +50,23 @@ class DerivedUnit(Unit):
 
 class UnitInstance:
     def __init__(self, name, params):
+        desc = None
+        try:
+            if params:
+                desc = params['@desc']
+                del params['@desc']
+        except KeyError:
+            pass
+
         self.name = name
         self.params = params
+        self.desc = desc
+
+    def get_desc(self):
+        if not self.desc:
+            return self.name
+
+        return self.desc
 
 def create_derived_unit(name, input, output, defaults, ui_list):
     u = DerivedUnit()

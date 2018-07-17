@@ -32,8 +32,9 @@ def create_flow(name, ui_cfg):
             f.output = ui_dict[ui_name]
         elif ui_name == 'defaults':
             f.defaults = ui_dict[ui_name]
-        else:    
-            ui = UnitInstance(ui_name, ui_dict[ui_name])
+        else: 
+            ui_params = ui_dict[ui_name]
+            ui = UnitInstance(ui_name, ui_params)
             f.ui_list.append(ui)
     return f
 
