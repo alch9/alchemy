@@ -32,6 +32,16 @@ derivatives:
 
 
 flows:
+    format-test:
+        - cli-positional:
+            spec: [who]
+        - context:
+            varmap:
+                who: $input_who
+        - format-str:
+            pattern: "Hello {who}"
+        - print-context:
+            param_list: [new_str]
     std_value:
         - Greet:
             name: World

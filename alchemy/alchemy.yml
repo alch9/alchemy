@@ -31,7 +31,7 @@ units:
                 str_var: Converted variable
         Parse yaml file:
             func: parse_yaml_file
-        Environment:
+        environment:
             func: env_values
         To list:
             func: to_list
@@ -47,6 +47,7 @@ units:
             type: meta
         Export dict:
             func: dict_to_ctx
+        #------------------------------------------
         query-dict:
             func: query_dict
             type: meta
@@ -67,3 +68,11 @@ units:
                         y:  'c/b'
                
                 This will map x = 10 and y = [1,2,3]. The x & y will be put in context
+        #------------------------------------------
+        format-str:
+            func: format_str
+            type: meta
+            input:
+                pattern: String format spec
+            output:
+                new_str: Formatted string

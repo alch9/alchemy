@@ -178,7 +178,7 @@ def run_ui_list(ctx, ui_list, allow_flow = False, notify = None):
 
         log.info("") 
         log.info("Unit instance: %s ---- START", ui.name)
-        execute_unit_inst(ctx, ui)
+        execute_unit_inst(ctx, ui, notify=notify)
         log.info("Unit instance: %s ---- END", ui.name)
 
         if notify:
