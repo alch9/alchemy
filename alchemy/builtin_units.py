@@ -1,6 +1,8 @@
 
-import os
+import os, logging
 from alchemy import engine, flow, unit
+
+log = logging.getLogger(__name__)
 
 def print_ctx(ctx, param_list):
     """
@@ -268,10 +270,13 @@ def query_dict(ctx, dict_var, pathmap, separator = '/'):
         ctx.values[ctx_var] = val
 
 def format_str(ctx, varmap):
+    log.info("format-str varmap: %s", varmap)
     ret = {}
     for key, pattern in varmap.iteritems():
+        log.info("format_str: exporting var = %s", key)
         ret[key] = pattern.format(**ctx.values)
-	return ret
+
+    return ret
 
 if __name__ == '__main__':
     class A:
