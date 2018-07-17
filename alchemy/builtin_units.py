@@ -267,9 +267,11 @@ def query_dict(ctx, dict_var, pathmap, separator = '/'):
                 raise Exception("key=[%s] in path=[%s] not found" % (key, dict_path))
         ctx.values[ctx_var] = val
 
-def format_str(ctx, pattern):
-	s = pattern.format(**ctx.values)
-	return {'new_str': s}
+def format_str(ctx, varmap):
+    ret = {}
+    for key, pattern in varmap.iteritems():
+        ret[key] = pattern.format(**ctx.values)
+	return ret
 
 if __name__ == '__main__':
     class A:

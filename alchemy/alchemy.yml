@@ -33,6 +33,8 @@ units:
             func: parse_yaml_file
         environment:
             func: env_values
+            input:
+                varlist: List of environment variables
         To list:
             func: to_list
             type: meta
@@ -73,6 +75,6 @@ units:
             func: format_str
             type: meta
             input:
-                pattern: String format spec
+                varmap: Dict of key and pattern
             output:
-                new_str: Formatted string
+                _pattern: Every key in varmap is exported with value as formatted string
