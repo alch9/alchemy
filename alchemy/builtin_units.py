@@ -116,12 +116,20 @@ def print_stream(stream):
         print line.rstrip()
         
     
-def cli_args_positional(spec):
+def cli_args_positional(spec, dryrun=False):
     """
     spec: list of positional args
     out:
         'spec: [a,b]' gets converted to ctx params 'input_a', 'input_b'
     """
+
+    if dryrun:
+        args = {}
+        for arg in spec:
+            args['input_' + arg] = "cli-positional"
+        return args
+        
+
     import sys    
     if len(sys.argv[4:]) < len(spec):
         print "Error: not enough args"
@@ -206,10 +214,15 @@ def delete_ctx(ctx, varlist):
         del ctx.values[v]
 
 
-def ctx_required(ctx, varlist):
+def ctx_required(ctx, varlist, dryrun=False):
     """
     varlist: List of context variables which must exist in the context
     """
+
+    if dryrun:
+        for v in varlist:
+            ctx.values[v] = 'ctx-required'
+        return
 
     for v in varlist:
         if not v in ctx.values:
@@ -255,7 +268,12 @@ def dict_to_ctx(dict_var, keys = None):
 def to_str(var):
     return {'str_var': str(var)}
 
-def query_dict(ctx, dict_var, pathmap, separator = '/'):
+def query_dict(ctx, dict_var, pathmap, separator = '/', dryrun=False):
+    if dryrun:
+        for ctx_var, dict_path in pathmap.iteritems():
+            ctx.values[ctx_var] = 'query-dict'
+        return
+
     for ctx_var, dict_path in pathmap.iteritems():
         keylist = dict_path.split(separator)
         val = dict_var
@@ -269,7 +287,20 @@ def query_dict(ctx, dict_var, pathmap, separator = '/'):
                 raise Exception("key=[%s] in path=[%s] not found" % (key, dict_path))
         ctx.values[ctx_var] = val
 
-def format_str(ctx, varmap):
+def load_yaml_file(filename, dryrun=False):
+    if dryrun:
+        return {'yaml_data': 'load-yaml-data'}
+
+    import yaml
+
+    with open(filename) as f:
+        y = yaml.load(f)
+        return {'yaml_data': y}
+
+def format_str(ctx, varmap, dryrun=False):
+    if dryrun:
+        return { key: "format-str" for key, pattern in varmap.iteritems() }
+
     log.info("format-str varmap: %s", varmap)
     ret = {}
     for key, pattern in varmap.iteritems():

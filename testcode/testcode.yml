@@ -42,41 +42,49 @@ flows:
             varmap:
                 who: "Hello {who}"
         - print-context:
-            param_list: [sho]
+            param_list: [who]
     #====================================
     std_value:
         - Greet:
             name: World
-        - Print context:
+        - print-context:
             param_list: ['@result']
     #====================================
     basic_math:
+        - input:
+            a: Integer
+            b: Integer
         - Add Numbers:
         - Mul Numbers:
             a: $result
     #====================================
     math_flow:
-        - Context:
-            values:
+        - context:
+            varmap:
                 a: 2
                 b: 3
         - $basic_math:
-        - Print context:
+        - print-context:
             param_list: null
     #====================================
     basic_math_cli:
-        - CLI positional:
+        - cli-positional:
             spec: [filename]
-        - Parse yaml file:
+        - load-yaml-file:
             filename: $input_filename
+        - query-dict:
+            dict_var: $yaml_data
+            pathmap:
+                a: 'a'
+                b: 'b'
         - $basic_math:
-        - Print context:
+        - print-context:
             param_list: [result]
     #====================================
     dir_list:
         - Command:
             cmd: ls -lrt
-        - Print stream:
+        - print-stream:
             stream: $stdout
     #====================================
     loop_test:
@@ -89,7 +97,7 @@ flows:
                     stream: $stdout
 
     iter:
-        - Foreach:
+        - foreach:
             itemlist: 
                 - 
                     a: 1
@@ -102,8 +110,8 @@ flows:
                     b: 100 
             varname: n
             units:
-                - Export dict:
+                - export-dict:
                     dict_var: $n
                 - Add Numbers:
-                - Print context:
+                - print-context:
                     param_list: [result]

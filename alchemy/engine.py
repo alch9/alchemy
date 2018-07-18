@@ -13,6 +13,7 @@ class Context:
         self.flow = None
         self.curr_unit_inst = None
         self.fault = False
+        self.curr_unit_name = None
 
 def mark_fault(ctx):
     ctx.fault = True
@@ -178,7 +179,11 @@ def run_ui_list(ctx, ui_list, allow_flow = False, notify = None):
 
         log.info("") 
         log.info("Unit instance: %s ---- START", ui.name)
-        execute_unit_inst(ctx, ui, notify=notify)
+        try:
+            execute_unit_inst(ctx, ui, notify=notify)
+        except Exception, e:
+            log.error("Failed to run instance: [%s], err = %s", ui.get_desc(), str(e))
+            raise
         log.info("Unit instance: %s ---- END", ui.name)
 
         if notify:
@@ -213,9 +218,11 @@ def run_derived_unit(ctx, dunit, params, notify = None):
 
 def run_flow(flow, params, notify = None, ctx = None):
     log.info("Running flow: %s %s", flow.name, params)
-    newctx = Context()
 
     if ctx is not None:
+        newctx = ctx
+    else:
+        newctx = Context()
         newctx.registry = ctx.registry
 
     for var in flow.get_args():
@@ -238,6 +245,29 @@ def run_flow_by_name(flow_name, params, notify = None, ctx = None):
 
     flow = ctx.registry.get_flow(flow_name)
     return run_flow(flow, params, notify=notify, ctx=ctx)
+
+def run_function_unit_dryrun(u, params, ctx = None):
+    if ctx:
+        pos_args = [ctx]
+    else:
+        pos_args = []
+
+    for a in u.args: 
+        if a != 'ctx':
+            pos_args.append(params[a])
+    
+    kargs = {}
+    for a in u.kargs: 
+        try:
+            if a == 'dryrun':
+                kargs['dryrun'] = True
+            else:
+                kargs[a] = params[a]
+        except KeyError:
+            pass
+
+    return u.func(*pos_args, **kargs)
+    
 
 if __name__ == '__main__':
     import sys

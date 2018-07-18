@@ -12,7 +12,7 @@ units:
         Loop:
             func: loop 
             type: meta
-        Command:
+        command:
             func: run_command
         print-stream:
             func: print_stream
@@ -29,8 +29,8 @@ units:
                 var: Variable to be converted to str
             output:
                 str_var: Converted variable
-        Parse yaml file:
-            func: parse_yaml_file
+        load-yaml-file:
+            func: load_yaml_file
         environment:
             func: env_values
             input:
@@ -38,16 +38,16 @@ units:
         To list:
             func: to_list
             type: meta
-        Delete context:
+        delete-context:
             func: delete_ctx
             type: meta
         Context required:
             func: ctx_required
             type: meta
-        Foreach:
+        foreach:
             func: for_each
             type: meta
-        Export dict:
+        export-dict:
             func: dict_to_ctx
         #------------------------------------------
         query-dict:

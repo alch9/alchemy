@@ -12,8 +12,11 @@ CMDINFO = {
     'cmd' : 'Prints the available commands',
     'check': 'Check integrity of the config file',
     'run' : 'Runs the flow',
+    'dryrun' : 'Runs the flow',
     'listu': 'List units',
     'listf': 'List flows',
+    'discover': 'Discover alchemy modules',
+    'cfginc': 'Show config hierarchy',
     'version': 'Show alchemy version',
 }
 
@@ -52,7 +55,7 @@ def get_registry(cfgfile):
     return reg
     
 
-def run_cmd(args):
+def run_cmd(args, dryrun=False):
     if len(args) < 2:
         print "Error: not enough arguments"
         print "Usage: {0} run <config file> <flow name>".format(EXENAME)
@@ -63,6 +66,10 @@ def run_cmd(args):
     log.info("Flow name: %s", flow_name)
 
     from alchemy import registry, engine
+
+    if dryrun:
+        engine.run_function_unit = engine.run_function_unit_dryrun
+
     reg = get_registry(cfgfile)
     flow_inst = reg.get_flow(flow_name)
 
@@ -94,6 +101,11 @@ def run_cmd(args):
     finally:
         progress_q.put(("--end--", None))
 
+    print "\n---- CONTEXT START ---"
+    if dryrun:
+        for k,v in ctx.values.iteritems():
+            print "%s = [%s]" % (k, v)
+    print "---- CONTEXT END ---"
 
 def listu_cmd(args):
     if len(args) < 1:
@@ -130,16 +142,25 @@ def listf_cmd(args):
     for i, name in enumerate(reg.flow_map.keys()):
         print "{0:<2} {1}".format((i+1), name)
 
-def is_cfg_file(filepath):
-    import yaml
-    try:
-        with open(filepath) as f:
-            data = yaml.load(f)
-            if 'alchemy' in data:
-                return True
-            return False
-    except:
-        return False
+def discover_cmd(args):
+    from alchemy import query
+    config = query.discover_config()
+
+    for name, cfgfile in config.iteritems():
+        print "{0:20} : {1}".format(name, cfgfile)
+    
+def cfginc_cmd(args):
+    if len(args) < 1:
+        print "Error: not enough arguments"
+        print "Usage: {0} cfginc <config>".format(EXENAME)
+        sys.exit(1)
+
+    mod_name = args[0]
+    from alchemy import query
+    info = query.get_config_hierarchy(mod_name)
+    if info:
+        for name, cfgfile, _ in info:
+            print "{0:20} : {1}".format(name, cfgfile)
     
 
 def dispatch_cmd(cmd, args):
@@ -151,10 +172,16 @@ def dispatch_cmd(cmd, args):
         check_cmd(args)
     elif cmd == 'run':
         run_cmd(args)
+    elif cmd == 'dryrun':
+        run_cmd(args, dryrun=True)
     elif cmd == 'listf':
         listf_cmd(args)
     elif cmd == 'listu':
         listu_cmd(args)
+    elif cmd == 'discover':
+        discover_cmd(args)
+    elif cmd == 'cfginc':
+        cfginc_cmd(args)
     elif cmd == 'version':
         version_cmd(args)
     else:

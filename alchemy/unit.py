@@ -55,6 +55,8 @@ class UnitInstance:
             if params:
                 desc = params['@desc']
                 del params['@desc']
+            else:
+                params = {}
         except KeyError:
             pass
 
