@@ -126,7 +126,7 @@ def cli_args_positional(spec, dryrun=False):
     if dryrun:
         args = {}
         for arg in spec:
-            args['input_' + arg] = "cli-positional"
+            args['input_' + arg] = ""
         return args
         
 
@@ -221,7 +221,7 @@ def ctx_required(ctx, varlist, dryrun=False):
 
     if dryrun:
         for v in varlist:
-            ctx.values[v] = 'ctx-required'
+            ctx.values[v] = ''
         return
 
     for v in varlist:
@@ -270,9 +270,7 @@ def to_str(var):
 
 def query_dict(ctx, dict_var, pathmap, separator = '/', dryrun=False):
     if dryrun:
-        for ctx_var, dict_path in pathmap.iteritems():
-            ctx.values[ctx_var] = 'query-dict'
-        return
+        return pathmap
 
     for ctx_var, dict_path in pathmap.iteritems():
         keylist = dict_path.split(separator)
@@ -289,7 +287,7 @@ def query_dict(ctx, dict_var, pathmap, separator = '/', dryrun=False):
 
 def load_yaml_file(filename, dryrun=False):
     if dryrun:
-        return {'yaml_data': 'load-yaml-data'}
+        return {'yaml_data': ''}
 
     import yaml
 
@@ -299,7 +297,7 @@ def load_yaml_file(filename, dryrun=False):
 
 def format_str(ctx, varmap, dryrun=False):
     if dryrun:
-        return { key: "format-str" for key, pattern in varmap.iteritems() }
+        return varmap
 
     log.info("format-str varmap: %s", varmap)
     ret = {}

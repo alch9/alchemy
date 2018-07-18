@@ -266,7 +266,12 @@ def run_function_unit_dryrun(u, params, ctx = None):
         except KeyError:
             pass
 
-    return u.func(*pos_args, **kargs)
+    ret = u.func(*pos_args, **kargs)
+    if ret and isinstance(ret, dict):
+        for k in ret.keys():
+            ret[k] = u.name
+
+    return ret        
     
 
 if __name__ == '__main__':
