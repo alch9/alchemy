@@ -220,9 +220,7 @@ def ctx_required(ctx, varlist, dryrun=False):
     """
 
     if dryrun:
-        for v in varlist:
-            ctx.values[v] = ''
-        return
+        return {v: '' for v in varlist}
 
     for v in varlist:
         if not v in ctx.values:
