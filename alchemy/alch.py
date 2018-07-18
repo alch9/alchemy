@@ -98,6 +98,9 @@ def run_cmd(args, dryrun=False):
         ctx = engine.Context()
         ctx.registry = reg
         engine.run_flow(flow_inst, {}, ctx=ctx, notify=notify)
+    except Exception, e:
+        print "Flow run=[%s] failed, err = %s" % (flow_name, str(e))
+        os._exit(1)
     finally:
         progress_q.put(("--end--", None))
 

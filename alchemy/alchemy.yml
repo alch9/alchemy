@@ -20,9 +20,8 @@ units:
             func: cli_args_positional
             input:
                 spec: List of variables
-        To int:
+        to-int:
             func: to_int
-            type: meta
         to-str:
             func: to_str
             input:

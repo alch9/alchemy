@@ -246,9 +246,26 @@ def run_flow_by_name(flow_name, params, notify = None, ctx = None):
     flow = ctx.registry.get_flow(flow_name)
     return run_flow(flow, params, notify=notify, ctx=ctx)
 
+def check_refs_in_params(ctx, d):
+    if isinstance(d, dict):
+        for v in d.values():
+            check_refs_in_params(ctx, v)
+    elif isinstance(d, list):
+        for v in d:
+            check_refs_in_params(ctx, v)
+    elif isinstance(d, str):
+        try:
+            _ = d.format(**ctx.values)
+        except KeyError, e:
+            key = e.args[0]
+            reason = "Var=[%s] used in [%s] not found" % (key, d)
+            log.error(reason)
+            raise Exception(reason)
+
 def run_function_unit_dryrun(u, params, ctx = None):
     if ctx:
         pos_args = [ctx]
+        check_refs_in_params(ctx, params)
     else:
         pos_args = []
 

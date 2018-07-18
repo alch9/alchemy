@@ -149,17 +149,17 @@ def cli_args_positional(spec, dryrun=False):
 
     return args
 
-def to_int(ctx, varlist):
+def to_int(varlist, dryrun=False):
     """
     varlist: List of context parameters
     out:
         Updates the context after the type conversion
     """
-    for a in varlist:
-        try:
-            ctx.values[a] = int(ctx.values[a])
-        except KeyError:
-            pass
+
+    if dryrun:
+        return {v: None for v in varlist}
+
+    return {v: int(v) for v in varlist}
 
 def parse_yaml_file(filename):
     """

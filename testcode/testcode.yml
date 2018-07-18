@@ -41,6 +41,7 @@ flows:
         - format-str:
             varmap:
                 who: "Hello {who}"
+                whatever: "Hello {name}"
         - print-context:
             param_list: [who]
     #====================================
