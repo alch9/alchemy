@@ -21,7 +21,7 @@ def print_ctx(ctx, param_list):
 
     print "--- ctx end --"
 
-def define_context(ctx, varmap):
+def define_context(ctx, varmap, dryrun=False):
     """
     values: Dict of values, where each key:value is a mapping to set the context
     out: Updates the context directly
@@ -33,7 +33,12 @@ def define_context(ctx, varmap):
         This defines 3 context variables a,c & d. The value of a is set as the 
         value of context var 'b'
     """
+
     new_values = engine.resolve_dict(ctx, varmap)
+
+    if dryrun:
+        return varmap
+
     ctx.values.update(new_values)
 
 
