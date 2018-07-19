@@ -65,7 +65,7 @@ def loop(ctx, count, units):
     for _ in range(count):
         engine.run_ui_list(ctx, ui_list, allow_flow=False, notify=None)
     
-def run_command(cmd, errordup = False, background = False, ignore_error = False):
+def run_command(ctx, cmd, errordup = False, background = False, ignore_error = False, dryrun=False):
     """
     cmd: The command string e.g. "uname -a"
     errdup: (False) Duplicate stderr to stdout
@@ -76,6 +76,16 @@ def run_command(cmd, errordup = False, background = False, ignore_error = False)
         stdout: The stdout stream
         stderr: The stderr stream
     """
+
+    if dryrun:
+        return {
+            'status_code': None, 
+            'stdout': None,
+            'stderr': None, 
+        }
+
+    cmd = cmd.format(**ctx.values)
+
     import subprocess
 
     o_status_code = 0
@@ -110,10 +120,14 @@ def run_command(cmd, errordup = False, background = False, ignore_error = False)
     }
 
 
-def print_stream(stream):
+def print_stream(stream, dryrun = False):
     """
     stream: Any valid file like object or stdout, strerr
     """
+
+    if dryrun:
+        return
+
     if not stream:
         return
         

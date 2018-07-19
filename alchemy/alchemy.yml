@@ -14,6 +14,7 @@ units:
             type: meta
         command:
             func: run_command
+            type: meta
         print-stream:
             func: print_stream
         cli-positional:
