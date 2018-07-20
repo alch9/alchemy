@@ -56,19 +56,25 @@ def load_config(fname, reg = None):
     return reg
 
 def load_units_from_module(reg, modname, units_dict):
+    log.info("Loading units from module: %s", modname)
     m = importlib.import_module(modname)
 
     for name, udict in units_dict.iteritems():
-        unit_type = udict.get('type', 'simple')
-        if unit_type == 'simple':
-            u = unit.create_unit(name, m, udict['func'])
-        elif unit_type == 'meta':
-            u = unit.create_unit(name, m, udict['func'])
-            u.unit_type = unit.UNIT_TYPE_META
-        elif unit_type == 'derived':
-            u = unit.create_derived_unit_from_dict(name, udict)
-        else:
-            raise Exception("Unknown unit type [%s]" % unit_type)
+        try:
+            unit_type = udict.get('type', 'simple')
+            if unit_type == 'simple':
+                u = unit.create_unit(name, m, udict['func'])
+            elif unit_type == 'meta':
+                u = unit.create_unit(name, m, udict['func'])
+                u.unit_type = unit.UNIT_TYPE_META
+            elif unit_type == 'derived':
+                u = unit.create_derived_unit_from_dict(name, udict)
+            else:
+                raise Exception("Unknown unit type [%s]" % unit_type)
+        except Exception, e:
+            log.error("Failed to load unit: [%s:%s]", modname, name)
+            raise
+            
 
         reg.add_unit(name, u)
             

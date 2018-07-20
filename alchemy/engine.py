@@ -115,8 +115,6 @@ def execute_unit_inst(ctx, ui, notify = None):
     if ctx.fault:
         os._exit(1)
     
-    log.info("Run UI: %s", ui.name)
-
     if ui.name.startswith('$'):
         log.info("Sub flow detected: %s", ui.name)
         flow_name = ui.name[1:]
@@ -125,7 +123,6 @@ def execute_unit_inst(ctx, ui, notify = None):
         ret_val = run_flow(flow, flow_params, ctx=ctx, notify=notify)
     else:
         u = ctx.registry.get_unit(ui.name)
-        log.info("Run UI: %s %s", ui.name, u.get_args())
         unit_params = resolve_unit_inst_params(ctx, ui, u.get_args())
 
         if isinstance(u, FunctionUnit):

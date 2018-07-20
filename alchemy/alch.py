@@ -106,7 +106,7 @@ def run_cmd(args, dryrun=False):
 
     if dryrun:
         print "\n---- CONTEXT START ---"
-        for k,v in ctx.values.iteritems():
+        for k,v in iter(sorted(ctx.values.iteritems())):
             print "%s = [%s]" % (k, v)
         print "---- CONTEXT END ---"
 

@@ -35,7 +35,7 @@ units:
             func: env_values
             input:
                 varlist: List of environment variables
-        To list:
+        to-list:
             func: to_list
             type: meta
         delete-context:
