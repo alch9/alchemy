@@ -4,11 +4,12 @@ import importlib
 
 UNIT_TYPE_SIMPLE = 1
 UNIT_TYPE_META = 2
+UNIT_TYPE_DERIVED = 3
 
 class Unit:
     def __init__(self):
         self.name = None
-        self.unit_type = 'simple'
+        self.unit_type = UNIT_TYPE_SIMPLE
 
 class FunctionUnit(Unit):
     def __init__(self):
@@ -17,7 +18,6 @@ class FunctionUnit(Unit):
         self.func = None
         self.args = None
         self.kargs = None
-        self.unit_type = UNIT_TYPE_SIMPLE
     
     def get_args(self):
         return self.args
@@ -35,6 +35,7 @@ class DerivedUnit(Unit):
         self.output = None
         self.defaults = {}
         self.ui_list = None
+        self.unit_type = UNIT_TYPE_DERIVED
 
     def get_args(self):
         if not self.defaults:
@@ -63,6 +64,13 @@ class UnitInstance:
         self.name = name
         self.params = params
         self.desc = desc
+
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'desc': self.desc,
+            'params': self.params,
+        }
 
     def get_desc(self):
         if not self.desc:
