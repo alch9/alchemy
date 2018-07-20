@@ -104,11 +104,11 @@ def run_cmd(args, dryrun=False):
     finally:
         progress_q.put(("--end--", None))
 
-    print "\n---- CONTEXT START ---"
     if dryrun:
+        print "\n---- CONTEXT START ---"
         for k,v in ctx.values.iteritems():
             print "%s = [%s]" % (k, v)
-    print "---- CONTEXT END ---"
+        print "---- CONTEXT END ---"
 
 def listu_cmd(args):
     if len(args) < 1:

@@ -182,7 +182,7 @@ def run_ui_list(ctx, ui_list, allow_flow = False, notify = None):
         try:
             execute_unit_inst(ctx, ui, notify=notify)
         except Exception, e:
-            log.error("Failed to run instance: [%s], err = %s", ui.get_desc(), str(e))
+            log.exception("Failed to run instance: [%s], err = %s", ui.get_desc(), str(e))
             raise
         log.info("Unit instance: %s ---- END", ui.name)
 
