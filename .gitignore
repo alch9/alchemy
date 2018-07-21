@@ -4,4 +4,4 @@ build
 dist
 *.egg-info
 *.log
-alchemyweb/react-app/node_modules
+node_modules
