@@ -1,5 +1,5 @@
-from flask import Flask, jsonify
-app = Flask(__name__)
+from flask import Flask, jsonify, render_template
+app = Flask(__name__, static_folder='./react-app', template_folder='./react-app/dist')
 
 import alchemy
 from alchemy import query
@@ -7,7 +7,7 @@ from alchemy import query
 @app.route("/")
 @app.route("/index.html")
 def index():
-    return app.send_static_file('index.html')
+    return render_template('index.html')
 
 @app.route("/version")
 def version():
