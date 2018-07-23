@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, render_template
-app = Flask(__name__, static_folder='./react-app/dist', template_folder='./react-app/dist')
+app = Flask(__name__, static_folder='./react-app/public', template_folder='./react-app/public')
 
 import alchemy
 from alchemy import query
