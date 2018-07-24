@@ -2,42 +2,45 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { Header, Sidebar, Segment, Dropdown, Divider, SidebarPushable } from 'semantic-ui-react';
+import Modal from '@material-ui/core/Modal';
+import Typography from '@material-ui/core/Typography';
+
+function rand() {
+    return Math.round(Math.random() * 20) - 10;
+}
+
+function getModalStyle() {
+    const top = 50 + rand();
+    const left = 50 + rand();
+    
+    return {
+        top: `${top}%`,
+        left: `${left}%`,
+        transform: `translate(-${top}%, -${left}%)`,
+    };
+}
 
 class Initial extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-          visible: true,
-        };
+        }
     }
 
-    handleButtonClick() {
-        this.setState({ visible: !this.state.visible })
-    }
-    handleSidebarHide() {
-        this.setState({ visible: false })
-    }
 
-    render () {
+    render() {
         return (
-            <Segment>
-            <Header size='tiny'>Configuration</Header>
-            <Dropdown 
-                placeholder="Select config" 
-                fluid 
-                search 
-                selection 
-                defaultValue={0}
-                options={
-                    [
-                        {text: "alchemy", value: "alchemy"},
-                        {text: "alchemy-std", value: "alchemy-std"},
-                        {text: "phoenix_units", value: "phoenix_units"}
-                    ]
-                }/>
-            </Segment>
-        );
+        <Modal open={true}>
+            <div style={getModalStyle()}>
+                <Typography variant="title" id="modal-title">
+                    Text in a modal
+                </Typography>
+                <Typography variant="subheading" id="simple-modal-description">
+                Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+                </Typography>
+            </div>
+        </Modal>
+        )
     }
 }
 
