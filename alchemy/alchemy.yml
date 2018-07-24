@@ -2,79 +2,125 @@ alchemy:
     cfg_version: '1.0'
 
 units:
-    alchemy.builtin_units:
-        print-context:
-            func: print_ctx
-            type: meta
-        context:
-            func: define_context 
-            type: meta
-        Loop:
-            func: loop 
-            type: meta
-        command:
-            func: run_command
-            type: meta
-        print-stream:
-            func: print_stream
-        cli-positional:
-            func: cli_args_positional
-            input:
-                spec: List of variables
-        to-int:
-            func: to_int
-        to-str:
-            func: to_str
-            input:
-                var: Variable to be converted to str
-            output:
-                str_var: Converted variable
-        load-yaml-file:
-            func: load_yaml_file
-        environment:
-            func: env_values
-            input:
-                varlist: List of environment variables
-        to-list:
-            func: to_list
-            type: meta
-        delete-context:
-            func: delete_ctx
-            type: meta
-        Context required:
-            func: ctx_required
-            type: meta
-        foreach:
-            func: for_each
-            type: meta
-        export-dict:
-            func: dict_to_ctx
-        #------------------------------------------
-        query-dict:
-            func: query_dict
-            type: meta
-            input:
-                dict_var: Python dictionary object
-                pathmap: Dictionary where value is query string and key is what will be put into the context
-            examples: |
-                Assume a dict 
-                some_dict = {
-                    'a': {'b': 10},
-                    'c': {'b': [1,2,3]},
-                }
+    print-context:
+        desc: Prints the context variables to stdout
+        func: alchemy.builtin_units.print_ctx
+        type: meta
+        input:
+            param_list: List of context variables
+    context:
+        desc: Defines a new context variables
+        func: alchemy.builtin_units.define_context 
+        type: meta
+        input:
+            varmap: Key value dict where key will be exported in the context
+    loop:
+        desc: "Runs the loop. Note that output depends on what the units actually export"
+        func: alchemy.builtin_units.loop 
+        type: meta
+        input:
+            count: Number of times the loop will be run
+            units: The list of unit instances to run
 
-                query-dict:
-                    dict_var: $some_dict
-                    pathmap:
-                        x:  'a/b'
-                        y:  'c/b'
-               
-                This will map x = 10 and y = [1,2,3]. The x & y will be put in context
-        #------------------------------------------
-        format-str:
-            func: format_str
-            type: meta
-            input:
-                varmap: Dict of key and pattern
-            output:
-                _pattern: Every key in varmap is exported with value as formatted string
+    command:
+        desc: Runs shell command
+        func: alchemy.builtin_units.run_command
+        type: meta
+        input:
+            cmd: Shell command string
+            errordup: Boolean. Duplicate STDERR to STDOUT
+            background: Boolean. Runs the cmd in background
+            ignore_error: Boolean. Ignore failure of the cmd
+        defaults:
+            errordup: false
+            background: false
+            ignore_error: false
+    print-stream:
+        desc: Prints an iterable stream to stdout
+        func: alchemy.builtin_units.print_stream
+        input:
+            stream: Line iterable object. Stdout, stderr, or even array, file are allowed
+    cli-positional:
+        desc: Parse commandline args but only positional ones
+        func: alchemy.builtin_units.cli_args_positional
+        input:
+            spec: List of variables
+    to-int:
+        desc: Convert input to int
+        func: alchemy.builtin_units.to_int
+        input:
+            varlist: List of context variables to convert to list
+    to-str:
+        desc: Convert input to string
+        func: alchemy.builtin_units.to_str
+        input:
+            var: Variable to be converted to str
+        output:
+            str_var: Converted variable
+    load-yaml-file:
+        desc: Parses and loads the content of a yaml file into a python dict
+        func: alchemy.builtin_units.load_yaml_file
+        input:
+            filename: File path of the yaml file
+        output:
+            yaml_data: Python dict representing the yaml content
+    environment:
+        desc: Exports environment variables to context
+        func: alchemy.builtin_units.env_values
+        input:
+            varlist: List of environment variables. For every X, it is exported as ENV_X
+    delete-context:
+        desc: Deletes the variables from the context
+        func: alchemy.builtin_units.delete_ctx
+        type: meta
+        input:
+            varlist: List of variable names to be deleted
+    context-required:
+        desc: List of the variables which must be present in context
+        func: alchemy.builtin_units.ctx_required
+        type: meta
+        input:
+            varlist: List of the variable names
+    foreach:
+        #def for_each(ctx, itemlist, varname, units):
+        desc: Iterates over a list or dict
+        func: alchemy.builtin_units.for_each
+        type: meta
+        input:
+            itemlist: List on which to iterate
+            varname: Current item to be iterated on. This is loop variable
+            units: List of unit instances
+    #------------------------------------------
+    query-dict:
+        func: alchemy.builtin_units.query_dict
+        type: meta
+        input:
+            dict_var: Python dictionary object
+            pathmap: Dictionary where value is query string and key is what will be put into the context
+            separator: Separator character used in query string
+        defaults:
+            separator: /
+        desc : |
+            Basic XPath like query on python dict    
+            Assume a dict 
+            some_dict = {
+                'a': {'b': 10},
+                'c': {'b': [1,2,3]},
+            }
+
+            query-dict:
+                dict_var: $some_dict
+                pathmap:
+                    x:  'a/b'
+                    y:  'c/b'
+            
+            This will map x = 10 and y = [1,2,3]. The x & y will be put in context
+    #------------------------------------------
+    format-str:
+        desc: Formats the input as per python .format() spec with context as keys
+        func: alchemy.builtin_units.format_str
+        type: meta
+        input:
+            varmap: Dict of key and pattern
+        output:
+            _pattern: Every key in varmap is exported with value as formatted string
