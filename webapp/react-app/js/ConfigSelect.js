@@ -2,7 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { Header, Segment, Dropdown } from 'semantic-ui-react';
+import { Header, Segment, Dropdown, Item } from 'semantic-ui-react';
 
 class ConfigSelect extends React.Component {
     constructor(props) {
@@ -19,6 +19,7 @@ class ConfigSelect extends React.Component {
                 defaultValue={this.props.defaultValue}
                 onChange={this.props.onChange}
                 options={this.props.options}
+                style={{width: "300px"}}
                 />
         );
     }

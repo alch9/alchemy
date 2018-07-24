@@ -61,7 +61,7 @@ def load_units_from_module(reg, modname, units_dict):
     for name, udict in units_dict.iteritems():
         unit_type = udict.get('type', 'simple')
         if unit_type == 'simple':
-            u = unit.create_unit(name, m, udict['func'])
+            u = unit.create_unit_from_dict(name, m, udict)
         elif unit_type == 'meta':
             u = unit.create_unit(name, m, udict['func'])
             u.unit_type = unit.UNIT_TYPE_META

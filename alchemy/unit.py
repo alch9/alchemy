@@ -18,6 +18,8 @@ class FunctionUnit(Unit):
         self.func = None
         self.args = None
         self.kargs = None
+        self.input_desc = {}
+        self.output = {}
     
     def get_args(self):
         return self.args
@@ -26,6 +28,30 @@ class FunctionUnit(Unit):
         if self.kargs is None:
             return None
         return self.kargs.keys()
+
+    def get_spec(self):
+        spec = {
+            'input': {}, 'output': self.output, 'type': self.unit_type,
+        }
+
+        for arg in self.args:
+            arg_info = {'def': '', 'desc': ''}
+            try:
+                if self.kargs:
+                    arg_info['def'] = self.kargs[arg]
+            except KeyError:
+                pass
+
+            try:
+                if self.input_desc:
+                    arg_info['desc'] = self.input_desc[arg]
+            except KeyError:
+                pass
+
+            spec['input'][arg] = arg_info            
+
+        return spec
+
         
 class DerivedUnit(Unit):
     def __init__(self):
@@ -48,6 +74,29 @@ class DerivedUnit(Unit):
         if self.defaults is None:
             return []
         return self.defaults.keys()
+
+    def get_spec(self):
+        spec = {
+            'input': {}, 'output': self.output, 'type': self.unit_type,
+        }
+
+        for arg in self.input:
+            arg_info = {'def': '', 'desc': ''}
+            try:
+                if self.defaults:
+                    arg_info['def'] = self.defaults[arg]
+            except KeyError:
+                pass
+
+            try:
+                if self.input:
+                    arg_info['desc'] = self.input[arg]
+            except KeyError:
+                pass
+
+            spec['input'][arg] = arg_info 
+
+        return spec
 
 class UnitInstance:
     def __init__(self, name, params):
@@ -139,6 +188,17 @@ def _create(name, module, func):
     u.args = args
     u.kargs = kargs
 
+    return u
+
+def create_unit_from_dict(name, module, d):
+    func_name = d['func']
+    f = getattr(module, func_name)
+    u = _create(name, module, f)
+
+    if 'input' in d:
+        u.input_desc = d['input']
+    if 'output' in d:
+        u.output = d['output']
     return u
 
 def create_unit(name, module, func_name):

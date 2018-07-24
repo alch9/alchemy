@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { Grid, Segment, Modal, Button } from 'semantic-ui-react';
+import { Grid, Segment, Modal, Button, Menu, Container, GridColumn } from 'semantic-ui-react';
 
 import ConfigSelect from './ConfigSelect';
 import ConfigContent from './ConfigContent';
@@ -19,6 +19,7 @@ export default class App extends React.Component {
             units: null,
             initial: false,
             configLoaded: false,
+            activeMenuItem: "view-menu",
         }
 
 
@@ -26,6 +27,7 @@ export default class App extends React.Component {
         this.fetchUnits = this.fetchUnits.bind(this)
         this.renderInitial = this.renderInitial.bind(this)
         this.handleClickModalAction = this.handleClickModalAction.bind(this)
+        this.handleMenuClick = this.handleMenuClick.bind(this)
     }
 
     componentDidMount() {
@@ -114,37 +116,51 @@ export default class App extends React.Component {
         )
     }
 
-    render () {
+    handleMenuClick(e, {name}) {
+        this.setState({activeMenuItem: name})
+    }
 
+    getMenu(options) {
+        var menuitem = this.state.activeMenuItem
+        return (
+        <Menu color="black" borderless={true} size="large">
+            <Menu.Item header>Alchemy</Menu.Item>
+            <Menu.Item><ConfigSelect options={options}/></Menu.Item>
+            <Menu.Item 
+                name='view-menu' 
+                active={menuitem == 'view-menu'} 
+                content='View'
+                onClick={this.handleMenuClick}/>
+            <Menu.Item 
+                name='dev-menu' 
+                content='Develop'
+                active={menuitem == 'dev-menu'} 
+                onClick={this.handleMenuClick}/>
+        </Menu>
+        )
+    }
+
+    render () {
         if (this.state.initial) {
             return this.renderInitial()
         }
 
         var mrow = this.getMiddleRow()
+        var menu = this.getMenu(this.state.configOptions)
      
         return (
             <div>
-                <Grid>
-                    <Grid.Row stretched={true} columns={2}>
-                        <Grid.Column stretched={true} width={2}>
-                            <Segment basic={true} inverted={true} textAlign="center">Alchemy</Segment>
-                        </Grid.Column>
-                        <Grid.Column stretched={true} width={2}>
-                            <ConfigSelect 
-                                onChange={this.handleConfigChange} 
-                                options={this.state.configOptions}
-                                defaultValue={this.state.config}
-                            />
-                        </Grid.Column>
-                    </Grid.Row>
-                    <Grid.Row stretched={true} columns={1}>
-                        {mrow}
-                    </Grid.Row>
-                    <Grid.Row stretched={true}>
-                        <Grid.Column stretched={true}>
-                            <Segment>Bottom Row</Segment>
-                        </Grid.Column>
-                    </Grid.Row>
+                <Grid columns={1}>
+                    <Grid.Column>
+                        <Grid.Row>
+                            {menu}
+                        </Grid.Row>
+                        <Grid.Row>
+                        </Grid.Row>
+                        <Grid.Row>
+                            <Segment>Message</Segment>
+                        </Grid.Row>
+                    </Grid.Column>
                 </Grid>
             </div>
       );

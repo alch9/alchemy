@@ -68,23 +68,13 @@ def get_registry(cfgfile):
     reg = yconfig.load_config(cfgfile)
     return reg
 
+
 def get_cfg_units(cfgname):
     reg = get_registry(cfgname)
 
     unit_info = {}
     for name, u in reg.unit_map.iteritems():
-        if isinstance(u, unit.FunctionUnit):
-            unit_info[name] = {
-                'input': u.args,
-                'defaults': u.kargs,
-                'type': u.unit_type,
-            }
-        else:
-            unit_info[name] = {
-                'input': u.input,
-                'defaults': u.defaults,
-                'type': u.unit_type,
-            }
+        unit_info[name] = u.get_spec()
 
     return unit_info
 

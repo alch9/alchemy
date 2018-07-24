@@ -2,7 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { Segment, Search, Grid, Button, Card, Table } from 'semantic-ui-react';
+import { Segment, Search, Grid, Button, Card, Table, Container } from 'semantic-ui-react';
 
 class UnitInfo extends React.Component {
     constructor(props) {
@@ -94,19 +94,19 @@ class UnitInfo extends React.Component {
 
         return (
             <Grid columns={3}>
-                <Grid.Column width={2}>
+                <Grid.Column>
                     <Search
                         minCharacters={2}
                         onSearchChange={this.handleSearchChange}
                         results={this.state.results}
                     />
                 </Grid.Column>
-                <Grid.Column width={2}>
+                <Grid.Column>
                     <Button.Group vertical={true}>
                         {ulist}
                     </Button.Group>
                 </Grid.Column>
-                <Grid.Column width={2}>
+                <Grid.Column>
                     {unitInfo}
                 </Grid.Column>
             </Grid>
