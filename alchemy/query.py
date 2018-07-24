@@ -4,6 +4,8 @@ import pkgutil
 
 import yaml
 
+from alchemy import yconfig, unit
+
 def is_cfg_file(filepath):
     try:
         with open(filepath) as f:
@@ -61,3 +63,45 @@ def get_config_hierarchy(module_name):
     seen = set()
     _get_config_hierarchy(module_name, seen, hlist)
     return hlist
+
+def get_registry(cfgfile):
+    reg = yconfig.load_config(cfgfile)
+    return reg
+
+
+def get_cfg_units(cfgname):
+    reg = get_registry(cfgname)
+
+    unit_info = {}
+    for name, u in reg.unit_map.iteritems():
+        unit_info[name] = u.get_spec()
+
+    return unit_info
+
+def get_cfg_flows(cfgname):
+    reg = get_registry(cfgname)
+
+    flow_info = {}
+    for name, u in reg.flow_map.iteritems():
+        flow_info[name] = {
+            'input': u.input,
+            'defaults': u.defaults,
+            'output': u.output,
+        }
+
+    return flow_info
+
+def get_flow_info(cfgname, flow_name):
+    reg = get_registry(cfgname)
+
+    f = reg.flow_map[flow_name]
+    flow_info = {}
+
+    flow_info['name'] = f.name
+    flow_info['input'] = f.input
+    flow_info['output'] = f.output
+    flow_info['defaults'] = f.defaults
+    ui_list = [ui.to_dict() for ui in f.ui_list]
+    flow_info['ui_list'] = ui_list
+        
+    return flow_info

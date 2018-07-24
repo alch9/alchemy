@@ -63,7 +63,7 @@ def load_units_from_module(reg, modname, units_dict):
         try:
             unit_type = udict.get('type', 'simple')
             if unit_type == 'simple':
-                u = unit.create_unit(name, m, udict['func'])
+                u = unit.create_unit_from_dict(name, m, udict)
             elif unit_type == 'meta':
                 u = unit.create_unit(name, m, udict['func'])
                 u.unit_type = unit.UNIT_TYPE_META
@@ -74,7 +74,6 @@ def load_units_from_module(reg, modname, units_dict):
         except Exception, e:
             log.error("Failed to load unit: [%s:%s]", modname, name)
             raise
-            
 
         reg.add_unit(name, u)
             
