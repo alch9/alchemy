@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import { Grid, Segment, Modal, Button, Menu, Container, GridColumn } from 'semantic-ui-react';
 
 import ConfigSelect from './ConfigSelect';
-import ConfigContent from './ConfigContent';
+import ConfigView from './ConfigView';
 
 const title = 'Alchemy webapp';
 
@@ -20,6 +20,7 @@ export default class App extends React.Component {
             initial: false,
             configLoaded: false,
             activeMenuItem: "view-menu",
+            version: null,
         }
 
 
@@ -34,6 +35,14 @@ export default class App extends React.Component {
         var _this = this
 
         console.log("cdm")
+        window.fetch(alchurl + '/version')
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(j){
+            _this.setState({version: j.version})
+        });
+
         var options = []
         window.fetch(alchurl + '/config')
         .then(function(response) {
@@ -53,20 +62,18 @@ export default class App extends React.Component {
             return response.json();
         })
         .then(j => {
-            this.setState({units: j})
+            this.setState({config:config, units: j})
         });
     }
 
     handleConfigChange(e, d) {
         if (this.state.config == null) {
             console.log("config: ", d.value)
-            this.setState({config: d.value, units: units})
-            var units = this.fetchUnits(d.value)
+            this.fetchUnits(d.value)
         }else{
             if (this.state.config != d.value) {
                 console.log("config: ", d.value)
-                this.setState({config: d.value, units: units})
-                var units = this.fetchUnits(d.value)
+                this.fetchUnits(d.value)
             }
         }
     }
@@ -77,7 +84,7 @@ export default class App extends React.Component {
         }else{
             return (
                 <Grid.Column>
-                    <ConfigContent units={this.state.units}/> 
+                    <ConfigView units={this.state.units}/> 
                 </Grid.Column>
             )
         }
@@ -124,8 +131,8 @@ export default class App extends React.Component {
         var menuitem = this.state.activeMenuItem
         return (
         <Menu color="black" borderless={true} size="large">
-            <Menu.Item header>Alchemy</Menu.Item>
-            <Menu.Item><ConfigSelect options={options}/></Menu.Item>
+            <Menu.Item header>Alchemy {this.state.version} </Menu.Item>
+            <Menu.Item><ConfigSelect options={options} onChange={this.handleConfigChange}/></Menu.Item>
             <Menu.Item 
                 name='view-menu' 
                 active={menuitem == 'view-menu'} 
@@ -156,6 +163,7 @@ export default class App extends React.Component {
                             {menu}
                         </Grid.Row>
                         <Grid.Row>
+                            {mrow}
                         </Grid.Row>
                         <Grid.Row>
                             <Segment>Message</Segment>

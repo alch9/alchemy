@@ -11,6 +11,7 @@ class Unit:
     def __init__(self):
         self.name = None
         self.unit_type = UNIT_TYPE_SIMPLE
+        self.desc = ""
 
 class FunctionUnit(Unit):
     def __init__(self):
@@ -33,7 +34,7 @@ class FunctionUnit(Unit):
 
     def get_spec(self):
         spec = {
-            'input': {}, 'output': self.output, 'type': self.unit_type,
+            'input': {}, 'output': self.output, 'type': self.unit_type, 'desc': self.desc,
         }
 
         for arg in self.args:
@@ -81,7 +82,7 @@ class DerivedUnit(Unit):
 
     def get_spec(self):
         spec = {
-            'input': {}, 'output': self.output, 'type': self.unit_type,
+            'input': {}, 'output': self.output, 'type': self.unit_type, 'desc': self.desc,
         }
 
         for arg in self.input:
@@ -160,6 +161,7 @@ def create_derived_unit_from_dict(name, d):
         ui_list.append(ui)
 
     u = create_derived_unit(name, unit_input, unit_output, unit_defaults, ui_list,)
+    u.desc = d['desc']
     return u
         
 
@@ -273,6 +275,7 @@ def create_function_unit_from_dict(name, d):
     u.args = args
     u.kargs = kargs
     u.pos_args = pos_args
+    u.desc = d['desc']
     try:
         u.input_desc = d['input']
     except KeyError:
