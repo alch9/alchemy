@@ -4,17 +4,38 @@ alchemy:
 include: [alchemy]
 
 units:
-    testcode.b:
-        Greet:
-            func: greet
-        Add Numbers: 
-            func: add
-        Mul Numbers: 
-            func: mul
-        Test: 
-            func: test
-        Test2:
-            func: test2
+    file-exists:
+        desc: Whether file exists or not
+        type: simple-wrap
+        func: os.path.exists
+        input:
+            path: Filepath
+        output:
+            exists_flag: Bool. True if file exists
+    Greet:
+        type: simple-wrap
+        desc: Greet user
+        func: testcode.b.greet
+        input:
+            name: Name of the user
+        output:
+            greeting: The greeting string
+    Add Numbers: 
+        desc: Add 2 numbers
+        func: testcode.b.add
+        input:
+            a: Integer
+            b: Integer
+        output:
+            result: Addition value
+    Mul Numbers: 
+        desc: Multiply 2 numbers
+        func: testcode.b.mul
+        input:
+            a: Integer
+            b: Integer
+        output:
+            result: Multiplication value
 
 derivatives:
     Square:
@@ -32,87 +53,11 @@ derivatives:
 
 
 flows:
-    format-test:
+    file-exists:
         - cli-positional:
-            spec: [who]
-        - context:
-            varmap:
-                who: $input_who
-        - format-str:
-            varmap:
-                who: "Hello {who}"
-                whatever: "Hello {name}"
-        - print-context:
-            param_list: [who]
-    #====================================
-    std_value:
-        - Greet:
-            name: World
-        - print-context:
-            param_list: ['@result']
-    #====================================
-    basic_math:
-        - input:
-            a: Integer
-            b: Integer
-        - Add Numbers:
-        - Mul Numbers:
-            a: $result
-    #====================================
-    math_flow:
-        - context:
-            varmap:
-                a: 2
-                b: 3
-        - $basic_math:
+            spec: [path]
+        - file-exists:
+            path: $input_path
         - print-context:
             param_list: null
-    #====================================
-    basic_math_cli:
-        - cli-positional:
-            spec: [filename]
-        - load-yaml-file:
-            filename: $input_filename
-        - query-dict:
-            dict_var: $yaml_data
-            pathmap:
-                a: 'a'
-                b: 'b'
-        - $basic_math:
-        - print-context:
-            param_list: [result]
-    #====================================
-    dir_list:
-        - Command:
-            cmd: ls -lrt
-        - print-stream:
-            stream: $stdout
-    #====================================
-    loop_test:
-        - Loop:
-            count: 3
-            units:
-                - Command:
-                    cmd: ls -lrt
-                - Print stream:
-                    stream: $stdout
-
-    iter:
-        - foreach:
-            itemlist: 
-                - 
-                    a: 1
-                    b: 2
-                -
-                    a: 10
-                    b: 20
-                -
-                    a: 100
-                    b: 100 
-            varname: n
-            units:
-                - export-dict:
-                    dict_var: $n
-                - Add Numbers:
-                - print-context:
-                    param_list: [result]
+    

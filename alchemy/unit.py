@@ -5,6 +5,7 @@ import importlib
 UNIT_TYPE_SIMPLE = 1
 UNIT_TYPE_META = 2
 UNIT_TYPE_DERIVED = 3
+UNIT_TYPE_SIMPLE_WRAP = 4
 
 class Unit:
     def __init__(self):
@@ -200,6 +201,16 @@ def check_func_unit(name, args, kargs, d):
     tmp_args = args
     if d['type'] == 'meta':
         tmp_args = [a for a in args if a != 'ctx']
+    
+    if d['type'] == 'simple-wrap':
+        if 'output' not in d:
+            raise Exception("Output spec not defined for unit [%s]" % name)
+
+        if len(d['output']) < 1 :
+            raise Exception("Output param needs to be defined for unit [%s]" % name)
+        
+        if len(d['output']) > 1:
+            raise Exception("More than one output param defined for unit [%s]" % name)
 
     tmp_args = [a for a in tmp_args if a != 'dryrun']
 
@@ -225,6 +236,7 @@ def check_func_unit(name, args, kargs, d):
         for k, v in tmp_kargs.iteritems():
             if v != d['defaults'][k]:
                 raise Exception("Keyword argument value mismatch for arg %s for unit %s" % (k, name))
+
                 
 def check_derived_unit(name, d):
     if 'defaults' in d:
@@ -260,10 +272,19 @@ def create_function_unit_from_dict(name, d):
     u.kargs = kargs
     u.pos_args = pos_args
 
+    try:
+        u.output = d['output']
+    except KeyError:
+        pass
+
     if d['type'] == 'simple':
         u.unit_type = UNIT_TYPE_SIMPLE
-    else:
+    elif d['type'] == 'simple-wrap':
+        u.unit_type = UNIT_TYPE_SIMPLE_WRAP
+    elif d['type'] == 'meta':
         u.unit_type = UNIT_TYPE_META
+    else:
+        raise Exception("Unknown unit type [%s]" % d['type'])
 
     return u
 
@@ -276,12 +297,12 @@ def create_unit_from_dict(name, d):
         raise Exception("Description missing for unit: %s" % name)
 
     unit_type = d['type']
-    if unit_type in ['simple', 'meta']:
+    if unit_type in ['simple', 'meta', 'simple-wrap']:
         u = create_function_unit_from_dict(name, d)
     elif unit_type == 'derived':
         u = create_derived_unit_from_dict(name, d)
     else:
-        raise Exception("Unknown unit type %s for unit %s", name)
+        raise Exception("Unknown unit type [%s] for unit [%s]" % (unit_type, name))
 
     return u
     

@@ -153,9 +153,7 @@ def cli_args_positional(spec, dryrun=False):
     if len(sys.argv[4:]) < len(spec):
         print "Error: not enough args"
         print "args:", " ".join(["<{0}>".format(a) for a in spec])
-        return {
-            '_status': False
-        }
+        raise Exception("Not enough CLI args")
 
     args = {}
     for i, arg in enumerate(spec):

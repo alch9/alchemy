@@ -1,7 +1,7 @@
 
 import os, logging, types
 import registry
-from alchemy.unit import FunctionUnit, DerivedUnit, UNIT_TYPE_META, UNIT_TYPE_SIMPLE
+from alchemy.unit import FunctionUnit, DerivedUnit, UNIT_TYPE_META, UNIT_TYPE_SIMPLE, UNIT_TYPE_SIMPLE_WRAP
 
 
 log = logging.getLogger(__name__)
@@ -45,7 +45,7 @@ def resolve_unit_inst_params(ctx, ui, unit_arg_list):
         ui_params[key] = ctx.values[ctx_param]
 
     for arg in unit_arg_list:
-        if arg == 'ctx': continue
+        if arg == 'ctx' or arg == 'dryrun': continue
         if arg not in ui_params:
             if arg not in ctx.values:
                 raise Exception("Param [%s] not found in context" % arg)
@@ -89,7 +89,7 @@ def run_function_unit(u, params, ctx = None):
     else:
         pos_args = []
 
-    for a in u.args: 
+    for a in u.pos_args: 
         if a != 'ctx':
             pos_args.append(params[a])
     
@@ -100,16 +100,14 @@ def run_function_unit(u, params, ctx = None):
         except KeyError:
             pass
 
-    return u.func(*pos_args, **kargs)
+    retval = u.func(*pos_args, **kargs)
 
-def run_unit(ctx, u, params, notify = None):
-    if isinstance(u, FunctionUnit):
-        if u.unit_type == UNIT_TYPE_META:
-            return run_function_unit(u, params, ctx = ctx)
-        else:
-            return run_function_unit(u, params, ctx = None)
-    else:
-        return run_derived_unit(ctx, u, params, notify = notify)
+    if u.unit_type == UNIT_TYPE_SIMPLE_WRAP:
+        print u.output.keys()
+        key = u.output.keys()[0]
+        return {key: retval}
+
+    return retval
 
 def execute_unit_inst(ctx, ui, notify = None):
     if ctx.fault:
@@ -266,7 +264,7 @@ def run_function_unit_dryrun(u, params, ctx = None):
     else:
         pos_args = []
 
-    for a in u.args: 
+    for a in u.pos_args: 
         if a != 'ctx':
             pos_args.append(params[a])
     
