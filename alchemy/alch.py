@@ -97,6 +97,7 @@ def run_cmd(args, dryrun=False):
     try:
         ctx = engine.Context()
         ctx.registry = reg
+        ctx.notifyfn = notify
         ret = engine.run_flow(flow_inst, {}, ctx=ctx, notify=notify)
         if ret:
             ctx.values.update(ret)
