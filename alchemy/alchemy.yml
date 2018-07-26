@@ -14,6 +14,14 @@ units:
         type: meta
         input:
             varmap: Key value dict where key will be exported in the context
+    foreach:
+        desc: Iterates a an iterable (list/dict)
+        type: meta
+        func: alchemy.builtin_units.foreach
+        input:
+            item: Loop context variable. Each item will exported with this name
+            iteron: Iterable object (any object which can be used in python's for loop)
+            units: List of units to be run
     loop:
         desc: "Runs the loop. Note that output depends on what the units actually export"
         func: alchemy.builtin_units.loop 
@@ -81,15 +89,6 @@ units:
         type: meta
         input:
             varlist: List of the variable names
-    foreach:
-        #def for_each(ctx, itemlist, varname, units):
-        desc: Iterates over a list or dict
-        func: alchemy.builtin_units.for_each
-        type: meta
-        input:
-            itemlist: List on which to iterate
-            varname: Current item to be iterated on. This is loop variable
-            units: List of unit instances
     #------------------------------------------
     query-dict:
         func: alchemy.builtin_units.query_dict

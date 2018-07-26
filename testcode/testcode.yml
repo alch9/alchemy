@@ -12,7 +12,7 @@ units:
             path: Filepath
         output:
             exists_flag: Bool. True if file exists
-    Greet:
+    greet:
         type: simple-wrap
         desc: Greet user
         func: testcode.b.greet
@@ -20,7 +20,7 @@ units:
             name: Name of the user
         output:
             greeting: The greeting string
-    Add Numbers: 
+    add-num: 
         desc: Add 2 numbers
         func: testcode.b.add
         input:
@@ -28,7 +28,7 @@ units:
             b: Integer
         output:
             result: Addition value
-    Mul Numbers: 
+    mul-num: 
         desc: Multiply 2 numbers
         func: testcode.b.mul
         input:
@@ -53,18 +53,41 @@ derivatives:
 
 
 flows:
+    testflow:
+        input:
+        output:
+        units:
+            - context:
+                varmap:
+                    a: 1
+            - add-num:
+                b: 10
+
+    foreach-test:
+        input:
+        output:
+        units:
+            - loop:
+                count: 3
+                units:
+                    - foreach:
+                        iteron: [1,2]
+                        item: num
+                        units:
+                            - add-num:
+                                a: $num
+                                b: 10
     file-exists:
         input:
             b: 1
-
         output:
             a: 1
-
         units: 
             - cli-positional:
                 spec: [path]
             - file-exists:
                 path: $input_path
+            - $testflow:
             - print-context:
                 param_list: null
     

@@ -97,7 +97,9 @@ def run_cmd(args, dryrun=False):
     try:
         ctx = engine.Context()
         ctx.registry = reg
-        engine.run_flow(flow_inst, {}, ctx=ctx, notify=notify)
+        ret = engine.run_flow(flow_inst, {}, ctx=ctx, notify=notify)
+        if ret:
+            ctx.values.update(ret)
     except Exception, e:
         print "Flow run=[%s] failed, err = %s" % (flow_name, str(e))
         os._exit(1)

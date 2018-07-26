@@ -24,7 +24,7 @@ class FunctionUnit(Unit):
         self.output = {}
     
     def get_args(self):
-        return self.args
+        return self.pos_args
     
     def get_default_vars(self):
         if self.kargs is None:
