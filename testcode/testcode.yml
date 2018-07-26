@@ -54,6 +54,10 @@ derivatives:
 
 flows:
     file-exists:
+        - input:
+
+        - output:
+
         - cli-positional:
             spec: [path]
         - file-exists:

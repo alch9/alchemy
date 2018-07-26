@@ -24,11 +24,16 @@ class Flow:
 
 def create_flow(name, ui_cfg):
     f = Flow(name)
+
+    input_found = False
+    output_found = False
     for ui_dict in ui_cfg:
         ui_name = ui_dict.keys()[0]
         if ui_name == 'input':
+            input_found = True
             f.input = ui_dict[ui_name]
         elif ui_name == 'output':
+            output_found = True
             f.output = ui_dict[ui_name]
         elif ui_name == 'defaults':
             f.defaults = ui_dict[ui_name]
@@ -36,6 +41,11 @@ def create_flow(name, ui_cfg):
             ui_params = ui_dict[ui_name]
             ui = UnitInstance(ui_name, ui_params)
             f.ui_list.append(ui)
+
+    if not input_found:
+        raise Exception("Input must be defined for flow [%s]" % name)
+    if not output_found:
+        raise Exception("Output must be defined for flow [%s]" % name)
     return f
 
 def create_from_dict(d):
