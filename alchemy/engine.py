@@ -228,10 +228,11 @@ def run_flow(flow, params, notify = None, ctx = None):
         newctx.registry = ctx.registry
         newctx.notifyfn = notify
 
-    for var in flow.get_args():
-        newctx.values[var] = params[var]
-
     newctx.values.update(flow.defaults)
+
+    for var in flow.input:
+        print var, params[var]
+        newctx.values[var] = params[var]
 
     run_ui_list(newctx, flow.ui_list, allow_flow=True)
 

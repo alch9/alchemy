@@ -1,5 +1,7 @@
 
 
+def just_hello():
+    print "Hello"
 
 def greet(name):
     return "hello " + name

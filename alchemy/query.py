@@ -82,12 +82,8 @@ def get_cfg_flows(cfgname):
     reg = get_registry(cfgname)
 
     flow_info = {}
-    for name, u in reg.flow_map.iteritems():
-        flow_info[name] = {
-            'input': u.input,
-            'defaults': u.defaults,
-            'output': u.output,
-        }
+    for name, f in reg.flow_map.iteritems():
+        flow_info[name] = f.get_spec()
 
     return flow_info
 

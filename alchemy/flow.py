@@ -4,8 +4,8 @@ from alchemy.unit import UnitInstance
 class Flow:
     def __init__(self, name):
         self.name = name
-        self.input = None
-        self.output = None
+        self.input = {}
+        self.output = {}
         self.defaults = {}
         self.ui_list = []
     
@@ -21,6 +21,30 @@ class Flow:
 
     def get_default_vars(self):
         return self.defaults.keys()
+
+    def get_spec(self):
+        spec = {
+            'input': {}, 'output': self.output,
+        }
+
+        if self.input:
+            for arg in self.input:
+                arg_info = {'desc': ''}
+                try:
+                    if self.defaults:
+                        arg_info['def'] = self.defaults[arg]
+                except KeyError:
+                    pass
+
+                try:
+                    if self.input:
+                        arg_info['desc'] = self.input[arg]
+                except KeyError:
+                    pass
+
+                spec['input'][arg] = arg_info 
+
+        return spec
 
 def create_flow(name, ui_cfg):
     if 'input' not in ui_cfg:
@@ -44,7 +68,11 @@ def create_flow(name, ui_cfg):
     ui_list = ui_cfg['units']
 
     f = Flow(name)
-    f.defaults = {}
+    f.defaults = defaults
+    if ui_cfg['input']:
+        f.input = ui_cfg['input']
+    if ui_cfg['output']:
+        f.output = ui_cfg['output']
 
     for ui_dict in ui_list:
         ui_name = ui_dict.keys()[0]

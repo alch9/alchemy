@@ -37,7 +37,9 @@ class FunctionUnit(Unit):
         }
 
         for arg in self.args:
-            arg_info = {'def': '', 'desc': ''}
+            if arg == 'ctx' or arg == 'dryrun':
+                continue
+            arg_info = {'desc': ''}
             try:
                 if self.kargs:
                     arg_info['def'] = self.kargs[arg]
@@ -83,7 +85,7 @@ class DerivedUnit(Unit):
         }
 
         for arg in self.input:
-            arg_info = {'def': '', 'desc': ''}
+            arg_info = {'desc': ''}
             try:
                 if self.defaults:
                     arg_info['def'] = self.defaults[arg]
@@ -216,7 +218,7 @@ def check_func_unit(name, args, kargs, d):
 
     if len(tmp_args) > 0:
         if 'input' not in d or not isinstance(d['input'], dict):
-            raise Exception("Inputs not defined defined (or is not a dict) for unit %s" % name)
+            raise Exception("Input not defined defined (or is not a dict) for unit [%s]" % name)
         
         if len(tmp_args) != len(d['input']):
             raise Exception("Argument count mismatch between function and configured for unit %s" % name)
@@ -271,6 +273,10 @@ def create_function_unit_from_dict(name, d):
     u.args = args
     u.kargs = kargs
     u.pos_args = pos_args
+    try:
+        u.input_desc = d['input']
+    except KeyError:
+        pass
 
     try:
         u.output = d['output']

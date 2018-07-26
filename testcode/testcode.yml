@@ -4,6 +4,9 @@ alchemy:
 include: [alchemy]
 
 units:
+    just-hello:
+        desc: Just to say Hello
+        func: testcode.b.just_hello
     file-exists:
         desc: Whether file exists or not
         type: simple-wrap
@@ -77,17 +80,22 @@ flows:
                             - add-num:
                                 a: $num
                                 b: 10
-    file-exists:
+    add-test:
         input:
-            b: 1
-        output:
+            a: Some int
+            b: Some int
+        defaults:
             a: 1
-        units: 
-            - cli-positional:
-                spec: [path]
-            - file-exists:
-                path: $input_path
-            - $testflow:
+        output:
+        units:
+            - add-num:
             - print-context:
-                param_list: null
-    
+                param_list: [result]
+
+    add-test2:
+        input:
+        output:
+        units:
+            - $add-test:
+                a: 10
+                b: 100

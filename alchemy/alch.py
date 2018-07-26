@@ -102,6 +102,7 @@ def run_cmd(args, dryrun=False):
         if ret:
             ctx.values.update(ret)
     except Exception, e:
+        log.exception(e)
         print "Flow run=[%s] failed, err = %s" % (flow_name, str(e))
         os._exit(1)
     finally:
@@ -119,22 +120,26 @@ def listu_cmd(args):
         print "Usage: {0} listu <config file>".format(EXENAME)
         sys.exit(1)
 
-    cfgfile = args[0]
-    reg = get_registry(cfgfile)
+    try:
+        cfgfile = args[0]
+        reg = get_registry(cfgfile)
 
-    from alchemy.unit import FunctionUnit
+        from alchemy.unit import FunctionUnit
 
-    for i, (name, u) in enumerate(reg.unit_map.iteritems()):
-        doc = ""
-        
-        if isinstance(u, FunctionUnit):
-            if u.func.__doc__:
-                doc = u.func.__doc__
-            print "{0:<3} {1:<20} {2}".format((i+1), name, doc)
-        else:
-            print "{0:<3} {1:<20}".format((i+1), name)
+        for i, (name, u) in enumerate(reg.unit_map.iteritems()):
+            doc = ""
             
-        print "------------------------------------------"
+            if isinstance(u, FunctionUnit):
+                if u.func.__doc__:
+                    doc = u.func.__doc__
+                print "{0:<3} {1:<20} {2}".format((i+1), name, doc)
+            else:
+                print "{0:<3} {1:<20}".format((i+1), name)
+                
+            print "------------------------------------------"
+    except Exception, e:
+        print str(e)
+        os._exit(1)
 
 def listf_cmd(args):
     if len(args) < 1:
