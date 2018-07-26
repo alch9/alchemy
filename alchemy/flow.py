@@ -23,29 +23,35 @@ class Flow:
         return self.defaults.keys()
 
 def create_flow(name, ui_cfg):
-    f = Flow(name)
-
-    input_found = False
-    output_found = False
-    for ui_dict in ui_cfg:
-        ui_name = ui_dict.keys()[0]
-        if ui_name == 'input':
-            input_found = True
-            f.input = ui_dict[ui_name]
-        elif ui_name == 'output':
-            output_found = True
-            f.output = ui_dict[ui_name]
-        elif ui_name == 'defaults':
-            f.defaults = ui_dict[ui_name]
-        else: 
-            ui_params = ui_dict[ui_name]
-            ui = UnitInstance(ui_name, ui_params)
-            f.ui_list.append(ui)
-
-    if not input_found:
+    if 'input' not in ui_cfg:
         raise Exception("Input must be defined for flow [%s]" % name)
-    if not output_found:
+
+    if 'output' not in ui_cfg:
         raise Exception("Output must be defined for flow [%s]" % name)
+
+    if 'units' not in ui_cfg:
+        raise Exception("Unit sequence must be defined for flow [%s]" % name)
+
+    defaults = {}
+    try:
+        defaults = ui_cfg['defaults']
+        for arg in defaults:
+            if arg not in ui_cfg['input']:
+                raise Exception("Argument [%s] defined as keyword but not defined in input for flow %s" % (arg, name))
+    except KeyError:
+        pass
+
+    ui_list = ui_cfg['units']
+
+    f = Flow(name)
+    f.defaults = {}
+
+    for ui_dict in ui_list:
+        ui_name = ui_dict.keys()[0]
+        ui_params = ui_dict[ui_name]
+        ui = UnitInstance(ui_name, ui_params)
+        f.ui_list.append(ui)
+
     return f
 
 def create_from_dict(d):

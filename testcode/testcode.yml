@@ -54,14 +54,17 @@ derivatives:
 
 flows:
     file-exists:
-        - input:
+        input:
+            b: 1
 
-        - output:
+        output:
+            a: 1
 
-        - cli-positional:
-            spec: [path]
-        - file-exists:
-            path: $input_path
-        - print-context:
-            param_list: null
+        units: 
+            - cli-positional:
+                spec: [path]
+            - file-exists:
+                path: $input_path
+            - print-context:
+                param_list: null
     
