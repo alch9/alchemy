@@ -38,7 +38,7 @@ def discover_config():
                 cfgfile = get_config_file_by_module(m)
                 if cfgfile:
                     config[name] = cfgfile[0]
-            except ImportError:
+            except Exception:
                 pass
     return config
 
