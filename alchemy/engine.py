@@ -1,7 +1,7 @@
 
 import os, logging, types
 import registry
-from alchemy.unit import FunctionUnit, DerivedUnit, UNIT_TYPE_META, UNIT_TYPE_SIMPLE
+from alchemy.unit import FunctionUnit, DerivedUnit, UNIT_TYPE_META, UNIT_TYPE_SIMPLE, UNIT_TYPE_SIMPLE_WRAP
 
 
 log = logging.getLogger(__name__)
@@ -14,6 +14,14 @@ class Context:
         self.curr_unit_inst = None
         self.fault = False
         self.curr_unit_name = None
+        self.notifyfn = None
+
+def clone_context(ctx):
+    newctx = Context()
+    newctx.registry = ctx.registry
+    newctx.notifyfn = ctx.notifyfn
+
+    return newctx
 
 def mark_fault(ctx):
     ctx.fault = True
@@ -45,7 +53,7 @@ def resolve_unit_inst_params(ctx, ui, unit_arg_list):
         ui_params[key] = ctx.values[ctx_param]
 
     for arg in unit_arg_list:
-        if arg == 'ctx': continue
+        if arg == 'ctx' or arg == 'dryrun': continue
         if arg not in ui_params:
             if arg not in ctx.values:
                 raise Exception("Param [%s] not found in context" % arg)
@@ -89,7 +97,7 @@ def run_function_unit(u, params, ctx = None):
     else:
         pos_args = []
 
-    for a in u.args: 
+    for a in u.pos_args: 
         if a != 'ctx':
             pos_args.append(params[a])
     
@@ -100,18 +108,15 @@ def run_function_unit(u, params, ctx = None):
         except KeyError:
             pass
 
-    return u.func(*pos_args, **kargs)
+    retval = u.func(*pos_args, **kargs)
 
-def run_unit(ctx, u, params, notify = None):
-    if isinstance(u, FunctionUnit):
-        if u.unit_type == UNIT_TYPE_META:
-            return run_function_unit(u, params, ctx = ctx)
-        else:
-            return run_function_unit(u, params, ctx = None)
-    else:
-        return run_derived_unit(ctx, u, params, notify = notify)
+    if u.unit_type == UNIT_TYPE_SIMPLE_WRAP:
+        key = u.output.keys()[0]
+        return {key: retval}
 
-def execute_unit_inst(ctx, ui, notify = None):
+    return retval
+
+def execute_unit_inst(ctx, ui):
     if ctx.fault:
         os._exit(1)
     
@@ -120,7 +125,8 @@ def execute_unit_inst(ctx, ui, notify = None):
         flow_name = ui.name[1:]
         flow = ctx.registry.get_flow(flow_name)
         flow_params = resolve_unit_inst_params(ctx, ui, flow.get_args())
-        ret_val = run_flow(flow, flow_params, ctx=ctx, notify=notify)
+        newctx = clone_context(ctx)
+        ret_val = run_flow(flow, flow_params, ctx=newctx)
     else:
         u = ctx.registry.get_unit(ui.name)
         unit_params = resolve_unit_inst_params(ctx, ui, u.get_args())
@@ -133,7 +139,7 @@ def execute_unit_inst(ctx, ui, notify = None):
             else:
                 ret_val = run_function_unit(u, unit_params, ctx = None)
         else:
-            ret_val = run_derived_unit(ctx, u, unit_params, notify = notify)
+            ret_val = run_derived_unit(ctx, u, unit_params)
 
     if isinstance(ret_val, types.NoneType):
         ctx.values['@result'] = None
@@ -167,30 +173,29 @@ def check_ui_list(ctx, ui_list, allow_flow):
             if not ctx.registry.is_unit_exists(ui.name):
                 raise Exception("Unit [%s] not found" % ui.name)
                 
-def run_ui_list(ctx, ui_list, allow_flow = False, notify = None):
+def run_ui_list(ctx, ui_list, allow_flow = False):
     check_ui_list(ctx, ui_list, allow_flow)
 
     for ui in ui_list:
-        if notify:
-            notify(ui.get_desc(), 'start')
+        if ctx.notifyfn:
+            ctx.notifyfn(ui.get_desc(), 'start')
 
         log.info("") 
         log.info("Unit instance: %s ---- START", ui.name)
         try:
-            execute_unit_inst(ctx, ui, notify=notify)
+            execute_unit_inst(ctx, ui)
         except Exception, e:
             log.exception("Failed to run instance: [%s], err = %s", ui.get_desc(), str(e))
             raise
         log.info("Unit instance: %s ---- END", ui.name)
 
-        if notify:
-            notify(ui.get_desc(), 'end')
+        if ctx.notifyfn:
+            ctx.notifyfn(ui.get_desc(), 'end')
         
 def run_derived_unit(ctx, dunit, params, notify = None):
     validate_derived_unit(ctx, dunit, params)
 
-    newctx = Context()
-    newctx.registry = ctx.registry
+    newctx = clone_context(ctx)
 
     defaults = {}
     if dunit.defaults:
@@ -206,7 +211,7 @@ def run_derived_unit(ctx, dunit, params, notify = None):
                 newctx.values[var] = defaults[var]
     
     log.debug("Run Derived unit: %s %s", dunit.name, params)
-    run_ui_list(newctx, dunit.ui_list, allow_flow=False, notify=notify)
+    run_ui_list(newctx, dunit.ui_list, allow_flow=False)
             
     ret = None
     if dunit.output:
@@ -221,13 +226,15 @@ def run_flow(flow, params, notify = None, ctx = None):
     else:
         newctx = Context()
         newctx.registry = ctx.registry
-
-    for var in flow.get_args():
-        newctx.values[var] = params[var]
+        newctx.notifyfn = notify
 
     newctx.values.update(flow.defaults)
 
-    run_ui_list(newctx, flow.ui_list, allow_flow=True, notify=notify)
+    for var in flow.input:
+        print var, params[var]
+        newctx.values[var] = params[var]
+
+    run_ui_list(newctx, flow.ui_list, allow_flow=True)
 
     ret = None
     if flow.output:
@@ -266,7 +273,7 @@ def run_function_unit_dryrun(u, params, ctx = None):
     else:
         pos_args = []
 
-    for a in u.args: 
+    for a in u.pos_args: 
         if a != 'ctx':
             pos_args.append(params[a])
     

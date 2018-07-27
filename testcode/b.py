@@ -1,5 +1,7 @@
 
 
+def just_hello():
+    print "Hello"
 
 def greet(name):
     return "hello " + name
@@ -18,7 +20,7 @@ def add(a, b, dryrun=False):
     """
 
     if dryrun:
-        return {'result': 'add'}
+        return {'result': None}
 
     return {
         'result': a+b

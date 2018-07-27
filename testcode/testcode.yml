@@ -4,17 +4,41 @@ alchemy:
 include: [alchemy]
 
 units:
-    testcode.b:
-        Greet:
-            func: greet
-        Add Numbers: 
-            func: add
-        Mul Numbers: 
-            func: mul
-        Test: 
-            func: test
-        Test2:
-            func: test2
+    just-hello:
+        desc: Just to say Hello
+        func: testcode.b.just_hello
+    file-exists:
+        desc: Whether file exists or not
+        type: simple-wrap
+        func: os.path.exists
+        input:
+            path: Filepath
+        output:
+            exists_flag: Bool. True if file exists
+    greet:
+        type: simple-wrap
+        desc: Greet user
+        func: testcode.b.greet
+        input:
+            name: Name of the user
+        output:
+            greeting: The greeting string
+    add-num: 
+        desc: Add 2 numbers
+        func: testcode.b.add
+        input:
+            a: Integer
+            b: Integer
+        output:
+            result: Addition value
+    mul-num: 
+        desc: Multiply 2 numbers
+        func: testcode.b.mul
+        input:
+            a: Integer
+            b: Integer
+        output:
+            result: Multiplication value
 
 derivatives:
     Square:
@@ -32,87 +56,46 @@ derivatives:
 
 
 flows:
-    format-test:
-        - cli-positional:
-            spec: [who]
-        - context:
-            varmap:
-                who: $input_who
-        - format-str:
-            varmap:
-                who: "Hello {who}"
-                whatever: "Hello {name}"
-        - print-context:
-            param_list: [who]
-    #====================================
-    std_value:
-        - Greet:
-            name: World
-        - print-context:
-            param_list: ['@result']
-    #====================================
-    basic_math:
-        - input:
-            a: Integer
-            b: Integer
-        - Add Numbers:
-        - Mul Numbers:
-            a: $result
-    #====================================
-    math_flow:
-        - context:
-            varmap:
-                a: 2
-                b: 3
-        - $basic_math:
-        - print-context:
-            param_list: null
-    #====================================
-    basic_math_cli:
-        - cli-positional:
-            spec: [filename]
-        - load-yaml-file:
-            filename: $input_filename
-        - query-dict:
-            dict_var: $yaml_data
-            pathmap:
-                a: 'a'
-                b: 'b'
-        - $basic_math:
-        - print-context:
-            param_list: [result]
-    #====================================
-    dir_list:
-        - Command:
-            cmd: ls -lrt
-        - print-stream:
-            stream: $stdout
-    #====================================
-    loop_test:
-        - Loop:
-            count: 3
-            units:
-                - Command:
-                    cmd: ls -lrt
-                - Print stream:
-                    stream: $stdout
-
-    iter:
-        - foreach:
-            itemlist: 
-                - 
+    testflow:
+        input:
+        output:
+        units:
+            - context:
+                varmap:
                     a: 1
-                    b: 2
-                -
-                    a: 10
-                    b: 20
-                -
-                    a: 100
-                    b: 100 
-            varname: n
-            units:
-                - export-dict:
-                    dict_var: $n
-                - Add Numbers:
-                - print-context:
-                    param_list: [result]
+            - add-num:
+                b: 10
+
+    foreach-test:
+        input:
+        output:
+        units:
+            - loop:
+                count: 3
+                units:
+                    - foreach:
+                        iteron: [1,2]
+                        item: num
+                        units:
+                            - add-num:
+                                a: $num
+                                b: 10
+    add-test:
+        input:
+            a: Some int
+            b: Some int
+        defaults:
+            a: 1
+        output:
+        units:
+            - add-num:
+            - print-context:
+                param_list: [result]
+
+    add-test2:
+        input:
+        output:
+        units:
+            - $add-test:
+                a: 10
+                b: 100

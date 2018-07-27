@@ -4,6 +4,15 @@ from alchemy import engine, flow, unit
 
 log = logging.getLogger(__name__)
 
+def foreach(ctx, item, iteron, units):
+    newctx = ctx
+        
+    ui_list = [unit.create_unit_inst_from_dict(d) for d in units]
+    for i in iteron:
+        newctx.values[item] = i
+        engine.run_ui_list(newctx, ui_list, allow_flow=True)
+        
+
 def print_ctx(ctx, param_list):
     """
     param_list: List of context variables to be printed. If null, then print all
@@ -43,27 +52,10 @@ def define_context(ctx, varmap, dryrun=False):
 
 
 def loop(ctx, count, units):
-    """
-    count: Number of times the loop will run
-    units: List of units to run
-    Example:
-        count: 3
-        units:
-            - Run command:
-                cmd: ls -lrt
-            - Print stream:
-                stream: $stdout
-
-        This runs the command and prints 3 times
-    """
-    ui_list = [] 
-    for unit_info in units:
-        for ui_name, ui_params in unit_info.iteritems():
-            ui = unit.UnitInstance(ui_name, ui_params)
-            ui_list.append(ui)
+    ui_list = [unit.create_unit_inst_from_dict(d) for d in units]
 
     for _ in range(count):
-        engine.run_ui_list(ctx, ui_list, allow_flow=False, notify=None)
+        engine.run_ui_list(ctx, ui_list, allow_flow=True)
     
 def run_command(ctx, cmd, errordup = False, background = False, ignore_error = False, dryrun=False):
     """
@@ -153,9 +145,7 @@ def cli_args_positional(spec, dryrun=False):
     if len(sys.argv[4:]) < len(spec):
         print "Error: not enough args"
         print "args:", " ".join(["<{0}>".format(a) for a in spec])
-        return {
-            '_status': False
-        }
+        raise Exception("Not enough CLI args")
 
     args = {}
     for i, arg in enumerate(spec):
@@ -244,30 +234,6 @@ def ctx_required(ctx, varlist, dryrun=False):
     for v in varlist:
         if not v in ctx.values:
             raise Exception("Context variable [%s] is required but not found" % v)
-
-
-def for_each(ctx, itemlist, varname, units):
-    """
-    input:
-        varlist: List of items to iterate on.
-        varname: The variable name which will be set per iteration. This is deleted once loop finishes
-        units: List of units to run
-    """
-    if not isinstance(varname, str):
-        raise Exception("For each variable name %s must be a string" % varname)
-        
-    ui_list = [] 
-    for unit_info in units:
-        for ui_name, ui_params in unit_info.iteritems():
-            ui = unit.UnitInstance(ui_name, ui_params)
-            ui_list.append(ui)
-
-    for item in itemlist:
-        ctx.values[varname] = item
-        engine.run_ui_list(ctx, ui_list, allow_flow=False)
-
-    if varname in ctx.values:        
-        del ctx.values[varname]
 
 
 def dict_to_ctx(dict_var, keys = None):
