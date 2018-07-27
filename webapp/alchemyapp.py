@@ -4,6 +4,10 @@ app = Flask(__name__, static_folder='./react-app/public', template_folder='./rea
 import alchemy
 from alchemy import query
 
+def wrap_response(rsp):
+    rsp.headers['Access-Control-Allow-Origin'] = '*'
+    return rsp
+
 @app.route("/")
 @app.route("/index.html")
 def index():
@@ -11,24 +15,24 @@ def index():
 
 @app.route("/version")
 def version():
-    return jsonify({'version': alchemy.__version__})
+    return wrap_response(jsonify({'version': alchemy.__version__}))
 
 @app.route("/config")
 def discover():
     config = query.discover_config()
-    return jsonify(config)
+    return wrap_response(jsonify(config))
 
 @app.route("/config/<cfgname>/units")
 def cfg_units(cfgname):
     unit_info = query.get_cfg_units(cfgname)
-    return jsonify(unit_info)
+    return wrap_response(jsonify(unit_info))
 
 @app.route("/config/<cfgname>/flows")
 def cfg_flows(cfgname):
     flow_info = query.get_cfg_flows(cfgname)
-    return jsonify(flow_info)
+    return wrap_response(jsonify(flow_info))
 
 @app.route("/config/<cfgname>/flows/<flow_name>")
 def cfg_flow_info(cfgname, flow_name):
     flow_info = query.get_flow_info(cfgname, flow_name)
-    return jsonify(flow_info)
+    return wrap_response(jsonify(flow_info))
