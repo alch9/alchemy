@@ -17,6 +17,7 @@ class ConfigView extends React.Component {
         this.getSelectedUnit = this.getSelectedUnit.bind(this)
         this.renderUnitInput = this.renderUnitInput.bind(this)
         this.renderUnitOutput = this.renderUnitOutput.bind(this)
+        this.renderUnitList = this.renderUnitList.bind(this)
         this.state.results = this.matchSource("")
     }
 
@@ -61,7 +62,7 @@ class ConfigView extends React.Component {
             if('def' in unit.input[arg]) {
                 defval = unit.input[arg].def
             }
-            var j = (<Table.Row>
+            var j = (<Table.Row key={unit.name + "." + arg}>
                 <Table.Cell>
                     {arg}
                 </Table.Cell>
@@ -78,10 +79,10 @@ class ConfigView extends React.Component {
 
         return (
             <div>
-            <Header as='h3' attached='top'>
+            <Header as='h4' attached='top'>
                 Input
             </Header>
-            <Table celled striped attached>
+            <Table celled striped attached size="small">
                 <Table.Header>
                     <Table.Row>
                         <Table.HeaderCell>Argument</Table.HeaderCell>
@@ -99,7 +100,7 @@ class ConfigView extends React.Component {
     renderUnitOutput(unit) {
         var output_el = []
         for (var arg in unit.output) {
-            var j = (<Table.Row>
+            var j = (<Table.Row key={unit.name + "." + arg}>
                 <Table.Cell>
                     {arg}
                 </Table.Cell>
@@ -113,10 +114,10 @@ class ConfigView extends React.Component {
 
         return (
             <div>
-            <Header as='h3' attached='top'>
+            <Header as='h4' attached='top'>
                 Output
             </Header>
-            <Table celled striped attached>
+            <Table celled striped attached size="small">
                 <Table.Header>
                     <Table.Row>
                         <Table.HeaderCell>Variable</Table.HeaderCell>
@@ -153,7 +154,7 @@ class ConfigView extends React.Component {
                     </Card.Header>
                     <Card.Meta>{unit_type}</Card.Meta>
                     <Card.Description>
-                        <Segment color="yellow" basic>
+                        <Segment basic style={{background: '#f9f7e5'}}>
                         <pre>
                         {unit.desc}
                         </pre>
@@ -170,16 +171,21 @@ class ConfigView extends React.Component {
         return ret
     }
 
-    render () {
-        if(this.props.units == undefined) {
-            return <div></div>
-        }
+    renderUnitList() {
         var ulist = []
         for (var i in this.state.results) {
             var title = this.state.results[i].title 
             ulist.push(<Button uname={title} key={title} onClick={this.handleUnitClick}>{title}</Button>)
         }
 
+        return ulist
+    }
+
+    render () {
+        if(this.props.units == undefined) {
+            return <div></div>
+        }
+        var ulist = this.renderUnitList()
         var unitInfo = this.getSelectedUnit()
         return (
             <Grid>
@@ -190,7 +196,7 @@ class ConfigView extends React.Component {
                         results={this.state.results}
                     />
                 </Grid.Row>
-                <Grid.Row columns={2}>
+                <Grid.Row columns={2} divided>
                     <Grid.Column>
                         <Button.Group vertical={true}>
                             {ulist}

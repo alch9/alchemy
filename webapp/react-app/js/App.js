@@ -17,6 +17,7 @@ export default class App extends React.Component {
             config: null,
             configOptions: null,
             units: null,
+            flows: null,
             initial: false,
             configLoaded: false,
             activeMenuItem: "view-menu",
@@ -62,7 +63,18 @@ export default class App extends React.Component {
             return response.json();
         })
         .then(j => {
+            console.log("Units fetched for config", config)
             this.setState({config:config, units: j})
+        });
+    }
+
+    fetchFlows(config) {
+        window.fetch(alchurl + '/config/' + config + '/flows')
+        .then(function(response) {
+            return response.json();
+        })
+        .then(j => {
+            this.setState({config:config, flows: j})
         });
     }
 
@@ -162,7 +174,7 @@ export default class App extends React.Component {
                         <Grid.Row>
                             {menu}
                         </Grid.Row>
-                        <Grid.Row>
+                        <Grid.Row style={{padding: '30px', height:'80vh'}}>
                             {mrow}
                         </Grid.Row>
                         <Grid.Row>
