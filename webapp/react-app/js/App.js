@@ -18,10 +18,11 @@ export default class App extends React.Component {
             configOptions: null,
             units: null,
             flows: null,
-            initial: false,
+            initial: true,
             configLoaded: false,
             activeMenuItem: "view-menu",
             version: null,
+            configChangeCounter: 0,
         }
 
 
@@ -64,7 +65,9 @@ export default class App extends React.Component {
         })
         .then(j => {
             console.log("Units fetched for config", config)
-            this.setState({config:config, units: j})
+            var count = this.state.configChangeCounter
+            count += 1
+            this.setState({config:config, units: j, configChangeCounter: count})
         });
     }
 
@@ -74,7 +77,9 @@ export default class App extends React.Component {
             return response.json();
         })
         .then(j => {
-            this.setState({config:config, flows: j})
+            var count = this.state.configChangeCounter
+            count += 1
+            this.setState({config:config, flows: j, configChangeCounter: count})
         });
     }
 
@@ -82,10 +87,12 @@ export default class App extends React.Component {
         if (this.state.config == null) {
             console.log("config: ", d.value)
             this.fetchUnits(d.value)
+            this.fetchFlows(d.value)
         }else{
             if (this.state.config != d.value) {
                 console.log("config: ", d.value)
                 this.fetchUnits(d.value)
+                this.fetchFlows(d.value)
             }
         }
     }
@@ -96,7 +103,12 @@ export default class App extends React.Component {
         }else{
             return (
                 <Grid.Column>
-                    <ConfigView units={this.state.units}/> 
+                    <ConfigView 
+                        units={this.state.units} 
+                        flows={this.state.flows}
+                        config={this.state.config}
+                        configChangeCounter={this.state.configChangeCounter}
+                    /> 
                 </Grid.Column>
             )
         }
@@ -104,7 +116,7 @@ export default class App extends React.Component {
 
     handleClickModalAction(d) {
         console.log("modal click", d.value, this.state.config)
-        if( this.state.config != null) {
+        if(this.state.config != null) {
             this.setState({initial: false})
         }
     }
@@ -144,7 +156,13 @@ export default class App extends React.Component {
         return (
         <Menu color="black" borderless={true} size="large">
             <Menu.Item header>Alchemy {this.state.version} </Menu.Item>
-            <Menu.Item><ConfigSelect options={options} onChange={this.handleConfigChange}/></Menu.Item>
+            <Menu.Item>
+                <ConfigSelect 
+                    options={options} 
+                    onChange={this.handleConfigChange}
+                    defaultValue={this.state.config}
+                    />
+            </Menu.Item>
             <Menu.Item 
                 name='view-menu' 
                 active={menuitem == 'view-menu'} 
@@ -174,11 +192,11 @@ export default class App extends React.Component {
                         <Grid.Row>
                             {menu}
                         </Grid.Row>
-                        <Grid.Row style={{padding: '30px', height:'80vh'}}>
+                        <Grid.Row style={{padding: '30px', height:'80vh', overflow: "scroll"}}>
                             {mrow}
                         </Grid.Row>
                         <Grid.Row>
-                            <Segment>Message</Segment>
+                            <Segment></Segment>
                         </Grid.Row>
                     </Grid.Column>
                 </Grid>

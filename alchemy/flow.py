@@ -8,6 +8,7 @@ class Flow:
         self.output = {}
         self.defaults = {}
         self.ui_list = []
+        self.desc = ""
     
     def get_args(self):
         if self.input is None:
@@ -24,7 +25,7 @@ class Flow:
 
     def get_spec(self):
         spec = {
-            'input': {}, 'output': self.output,
+            'input': {}, 'output': self.output, 'desc': self.desc
         }
 
         if self.input:
@@ -56,6 +57,9 @@ def create_flow(name, ui_cfg):
     if 'units' not in ui_cfg:
         raise Exception("Unit sequence must be defined for flow [%s]" % name)
 
+    if 'desc' not in ui_cfg:
+        raise Exception("Description must be defined for flow [%s]" % name)
+
     defaults = {}
     try:
         defaults = ui_cfg['defaults']
@@ -69,6 +73,7 @@ def create_flow(name, ui_cfg):
 
     f = Flow(name)
     f.defaults = defaults
+    f.desc = ui_cfg['desc']
     if ui_cfg['input']:
         f.input = ui_cfg['input']
     if ui_cfg['output']:

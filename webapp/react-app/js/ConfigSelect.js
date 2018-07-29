@@ -19,7 +19,6 @@ class ConfigSelect extends React.Component {
                 defaultValue={this.props.defaultValue}
                 onChange={this.props.onChange}
                 options={this.props.options}
-                style={{width: "300px"}}
                 />
         );
     }
