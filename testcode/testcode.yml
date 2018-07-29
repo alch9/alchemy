@@ -57,6 +57,7 @@ derivatives:
 
 flows:
     testflow:
+        desc: This is a testflow
         input:
         output:
         units:
@@ -67,6 +68,7 @@ flows:
                 b: 10
 
     foreach-test:
+        desc: Foreach test
         input:
         output:
         units:
@@ -81,6 +83,7 @@ flows:
                                 a: $num
                                 b: 10
     add-test:
+        desc: Addition test
         input:
             a: Some int
             b: Some int
@@ -93,6 +96,7 @@ flows:
                 param_list: [result]
 
     add-test2:
+        desc: Additional add test
         input:
         output:
         units:
