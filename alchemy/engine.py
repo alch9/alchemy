@@ -15,6 +15,7 @@ class Context:
         self.fault = False
         self.curr_unit_name = None
         self.notifyfn = None
+        self.dryrun = False
 
 def clone_context(ctx):
     newctx = Context()
@@ -91,8 +92,11 @@ def resolve_dict(ctx, argdict):
 
     return args
 
-def run_function_unit(u, params, ctx = None):
-    if ctx:
+def run_function_unit(ctx, u, params, with_ctx = False):
+    if ctx.dryrun:
+        return run_function_unit_dryrun(ctx, u, params, with_ctx=with_ctx)
+
+    if with_ctx:
         pos_args = [ctx]
     else:
         pos_args = []
@@ -135,9 +139,9 @@ def execute_unit_inst(ctx, ui):
             ctx.curr_unit_inst = ui
 
             if u.unit_type == UNIT_TYPE_META:
-                ret_val = run_function_unit(u, unit_params, ctx = ctx)
+                ret_val = run_function_unit(ctx, u, unit_params, with_ctx = True)
             else:
-                ret_val = run_function_unit(u, unit_params, ctx = None)
+                ret_val = run_function_unit(ctx, u, unit_params, with_ctx = False)
         else:
             ret_val = run_derived_unit(ctx, u, unit_params)
 
@@ -266,8 +270,8 @@ def check_refs_in_params(ctx, d):
             log.error(reason)
             raise Exception(reason)
 
-def run_function_unit_dryrun(u, params, ctx = None):
-    if ctx:
+def run_function_unit_dryrun(ctx, u, params, with_ctx = False):
+    if with_ctx:
         pos_args = [ctx]
         check_refs_in_params(ctx, params)
     else:

@@ -65,13 +65,6 @@ def run_cmd(args, dryrun=False):
     log.info("Config file: %s", cfgfile)
     log.info("Flow name: %s", flow_name)
 
-    from alchemy import registry, engine
-
-    if dryrun:
-        engine.run_function_unit = engine.run_function_unit_dryrun
-
-    reg = get_registry(cfgfile)
-    flow_inst = reg.get_flow(flow_name)
 
     from threading import Thread
     from Queue import Queue
@@ -95,12 +88,8 @@ def run_cmd(args, dryrun=False):
     t.start()
 
     try:
-        ctx = engine.Context()
-        ctx.registry = reg
-        ctx.notifyfn = notify
-        ret = engine.run_flow(flow_inst, {}, ctx=ctx, notify=notify)
-        if ret:
-            ctx.values.update(ret)
+        from alchemy import api
+        ctx = api.run_flow(cfgfile, flow_name, notifyfn=notify, dryrun=dryrun)
     except Exception, e:
         log.exception(e)
         print "Flow run=[%s] failed, err = %s" % (flow_name, str(e))
