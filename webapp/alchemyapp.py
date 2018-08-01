@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, render_template
+import flask
+
 app = Flask(__name__, static_folder='./react-app/public', template_folder='./react-app/public')
 
 import alchemy
-from alchemy import query
+from alchemy import query, api
 
 def wrap_response(rsp):
     rsp.headers['Access-Control-Allow-Origin'] = '*'
@@ -32,7 +34,13 @@ def cfg_flows(cfgname):
     flow_info = query.get_cfg_flows(cfgname)
     return wrap_response(jsonify(flow_info))
 
-@app.route("/config/<cfgname>/flows/<flow_name>")
+@app.route("/config/<cfgname>/flows/<flow_name>", methods=['GET', 'POST'])
 def cfg_flow_info(cfgname, flow_name):
-    flow_info = query.get_flow_info(cfgname, flow_name)
-    return wrap_response(jsonify(flow_info))
+    if flask.request.method == 'GET':
+        flow_info = query.get_flow_info(cfgname, flow_name)
+        return wrap_response(jsonify(flow_info))
+    else:
+        dryrun = flask.request.args.get('dryrun', 'false') == 'true'
+        ctx = api.run_flow(cfgname, flow_name, notifyfn=None, dryrun=dryrun)
+
+        return wrap_response(jsonify(ctx.values))
