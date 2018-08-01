@@ -21,6 +21,7 @@ def clone_context(ctx):
     newctx = Context()
     newctx.registry = ctx.registry
     newctx.notifyfn = ctx.notifyfn
+    newctx.dryrun = ctx.dryrun
 
     return newctx
 
@@ -281,17 +282,21 @@ def run_function_unit_dryrun(ctx, u, params, with_ctx = False):
         if a != 'ctx':
             pos_args.append(params[a])
     
-    kargs = {}
-    for a in u.kargs: 
-        try:
-            if a == 'dryrun':
-                kargs['dryrun'] = True
-            else:
+    if 'dryrun' in u.kargs:
+        kargs = {}
+        for a in u.kargs: 
+            try:
                 kargs[a] = params[a]
-        except KeyError:
-            pass
+            except KeyError:
+                pass
+        kargs['dryrun'] = True
+        ret = u.func(*pos_args, **kargs)
+    else:
+        ret = {}
+        print u.name, u.output
+        for k in u.output:
+            ret[k] = u.name
 
-    ret = u.func(*pos_args, **kargs)
     if ret and isinstance(ret, dict):
         for k in ret.keys():
             ret[k] = u.name

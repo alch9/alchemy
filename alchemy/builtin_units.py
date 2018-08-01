@@ -4,7 +4,7 @@ from alchemy import engine, flow, unit
 
 log = logging.getLogger(__name__)
 
-def foreach(ctx, item, iteron, units):
+def foreach(ctx, item, iteron, units, dryrun=False):
     newctx = ctx
         
     ui_list = [unit.create_unit_inst_from_dict(d) for d in units]
@@ -51,7 +51,7 @@ def define_context(ctx, varmap, dryrun=False):
     ctx.values.update(new_values)
 
 
-def loop(ctx, count, units):
+def loop(ctx, count, units, dryrun=False):
     ui_list = [unit.create_unit_inst_from_dict(d) for d in units]
 
     for _ in range(count):

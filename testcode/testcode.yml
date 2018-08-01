@@ -90,10 +90,12 @@ flows:
         defaults:
             a: 1
         output:
+            retval: Addition output
         units:
             - add-num:
-            - print-context:
-                param_list: [result]
+            - context:
+                varmap:
+                    retval: $result
 
     add-test2:
         desc: Additional add test
