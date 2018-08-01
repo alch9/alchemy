@@ -2,7 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { Segment, List, Header, Grid, Card, Table, Divider, Input } from 'semantic-ui-react';
+import { Segment, List, Header, Grid, Card, Table, Divider, Input, Button } from 'semantic-ui-react';
 
 class ConfigView extends React.Component {
     constructor(props) {

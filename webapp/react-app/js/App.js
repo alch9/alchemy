@@ -18,7 +18,7 @@ export default class App extends React.Component {
             configOptions: null,
             units: null,
             flows: null,
-            initial: true,
+            initial: false,
             configLoaded: false,
             activeMenuItem: "view-menu",
             version: null,

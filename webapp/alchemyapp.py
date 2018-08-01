@@ -41,6 +41,7 @@ def cfg_flow_info(cfgname, flow_name):
         return wrap_response(jsonify(flow_info))
     else:
         dryrun = flask.request.args.get('dryrun', 'false') == 'true'
-        ctx = api.run_flow(cfgname, flow_name, notifyfn=None, dryrun=dryrun)
+        flow_cfg = flask.request.get_json(force=True)
+        ctx = api.run_flow_with_dict(cfgname, flow_name, flow_cfg, dryrun=True)
 
         return wrap_response(jsonify(ctx.values))
