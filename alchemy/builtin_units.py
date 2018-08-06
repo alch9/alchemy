@@ -183,12 +183,15 @@ def parse_yaml_file(filename):
             '_status': False
         }
 
-def env_values(varlist):
+def env_values(varlist, dryrun=False):
     """
     varlist: List of env variables
     out:
         Each env var X is exported as ENV_X in the context
     """
+
+    if dryrun:
+        return {"ENV_" + v: None for v in varlist}
 
     ctx_vars = {}
     for v in varlist:
@@ -268,13 +271,13 @@ def query_dict(ctx, dict_var, pathmap, separator = '/', dryrun=False):
                 raise Exception("key=[%s] in path=[%s] not found" % (key, dict_path))
         ctx.values[ctx_var] = val
 
-def load_yaml_file(filename, dryrun=False):
+def load_yaml_file(filepath, dryrun=False):
     if dryrun:
         return {'yaml_data': ''}
 
     import yaml
 
-    with open(filename) as f:
+    with open(filepath) as f:
         y = yaml.load(f)
         return {'yaml_data': y}
 

@@ -69,7 +69,7 @@ units:
         desc: Parses and loads the content of a yaml file into a python dict
         func: alchemy.builtin_units.load_yaml_file
         input:
-            filename: File path of the yaml file
+            filepath: File path of the yaml file
         output:
             yaml_data: Python dict representing the yaml content
     environment:
