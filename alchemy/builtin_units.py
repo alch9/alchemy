@@ -296,6 +296,13 @@ def query_dict(ctx, dict_var, pathmap, separator = '/', dryrun=False):
                 raise Exception("key=[%s] in path=[%s] not found" % (key, dict_path))
         ctx.values[ctx_var] = val
 
+def write_yaml_file(yaml_data, filepath):
+    import yaml
+
+    with open(filepath, "w") as f:
+        data = yaml.dump(yaml_data)
+        f.write(data)
+
 def load_yaml_file(filepath, dryrun=False):
     if dryrun:
         return {'yaml_data': ''}

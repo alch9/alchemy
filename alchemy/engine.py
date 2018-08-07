@@ -237,7 +237,6 @@ def run_flow(flow, params, notify = None, ctx = None):
     newctx.values.update(flow.defaults)
 
     for var in flow.input:
-        print var, params[var]
         newctx.values[var] = params[var]
 
     run_ui_list(newctx, flow.ui_list, allow_flow=True)

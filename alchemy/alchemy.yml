@@ -78,6 +78,12 @@ units:
             var: Variable to be converted to str
         output:
             str_var: Converted variable
+    write-yaml-file:
+        desc: Writes a python dict to a yaml file
+        func: alchemy.builtin_units.write_yaml_file
+        input:
+            yaml_data: Python dict to be written as Yaml
+            filepath: File path of the yaml file
     load-yaml-file:
         desc: Parses and loads the content of a yaml file into a python dict
         func: alchemy.builtin_units.load_yaml_file
@@ -139,6 +145,59 @@ units:
 
 
 flows:
+    create-module:
+        desc: Creates a new python module template for alchemy
+        input:
+            name: Python module name
+            dirpath: Path where module is to be created
+        output:
+        units:
+            - format-str:
+                varmap:
+                    module_path: "{dirpath}/{name}"
+                    config_filename: "{name}.yml"
+            - format-str:
+                varmap:
+                    config_filepath: "{module_path}/{config_filename}"
+            - context:
+                varmap:
+                    config_data:
+                        alchemy:
+                            cfg_version: 1.0
+
+                        include: [alchemy]
+                        flows:
+                            hello-test:
+                                desc: Auto generated test flow which greets Hello
+                                input:
+                                output:
+                                units:
+                                    - cli-positional:
+                                        spec: [name]
+                                    - format-str:
+                                        varmap:
+                                            greeting: "Hello {input_name}!"
+                                    - print-context:
+                                        param_list: [greeting]    
+            - command:
+                '@desc': Create module dir
+                cmd: "rm -fR {module_path}; mkdir -p {module_path}; touch {module_path}/__init__.py"
+            - write-yaml-file:
+                '@desc': Create config file
+                yaml_data: $config_data
+                filepath: $config_filepath
+    #--------------------------------------
+    create-module-cli:
+        desc: CLI interface for create-module-flow
+        input:
+        output:
+        units:
+            - cli-positional:
+                spec: [module_name]
+            - $create-module:
+                dirpath: .
+                name: $input_module_name
+    #--------------------------------------
     thread-test:
         desc: ''
         input:
