@@ -11,8 +11,33 @@ def foreach(ctx, item, iteron, units, dryrun=False):
     for i in iteron:
         newctx.values[item] = i
         engine.run_ui_list(newctx, ui_list, allow_flow=True)
-        
 
+
+def spawn_thread(ctx, units, name=None, join=False, newctx=False, dryrun=False):
+    from threading import Thread
+
+    def target_fn(ctx, ui_list, allow_flow = False):
+        try:
+            engine.run_ui_list(ctx, ui_list, allow_flow = allow_flow)
+        except Exception, e:
+            log.exception(e)
+            ctx.fault_obj = e
+            ctx.fault = True
+    
+    log.info("Spawing thread, name = %s", name)
+    if newctx:
+        ctx = engine.clone_context(ctx)
+
+    ui_list = [unit.create_unit_inst_from_dict(d) for d in units]
+    t = Thread(target=target_fn, name=name, args=(ctx, ui_list), kwargs={'allow_flow': True})
+    t.start()
+
+    if join:
+        t.join()
+
+    if ctx.fault_obj:
+        raise ctx.fault_obj
+    
 def print_ctx(ctx, param_list):
     """
     param_list: List of context variables to be printed. If null, then print all

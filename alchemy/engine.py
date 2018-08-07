@@ -16,6 +16,7 @@ class Context:
         self.curr_unit_name = None
         self.notifyfn = None
         self.dryrun = False
+        self.fault_obj = None
 
 def clone_context(ctx):
     newctx = Context()

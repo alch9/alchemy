@@ -22,6 +22,19 @@ units:
             item: Loop context variable. Each item will exported with this name
             iteron: Iterable object (any object which can be used in python's for loop)
             units: List of units to be run
+    spawn-thread:
+        desc: Runs a list of units in a new thread
+        type: meta
+        func: alchemy.builtin_units.spawn_thread
+        input:
+            units: List of units to run
+            name: Name of the thread
+            join: Boolean. Wait for thread to finish
+            newctx: Boolean. Use new context for the thread
+        defaults:
+            name: null
+            join: false
+            newctx: false
     loop:
         desc: "Runs the loop. Note that output depends on what the units actually export"
         func: alchemy.builtin_units.loop 
@@ -123,3 +136,22 @@ units:
             varmap: Dict of key and pattern
         output:
             _pattern: Every key in varmap is exported with value as formatted string
+
+
+flows:
+    thread-test:
+        desc: ''
+        input:
+        output:
+        units:
+            - context:
+                varmap:
+                    a: Hello
+            - spawn-thread:
+                join: true
+                units:
+                    - format-str:
+                        varmap:
+                            b: "{a} World"
+                    - print-context:
+                        param_list: [b]
