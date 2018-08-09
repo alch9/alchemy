@@ -310,7 +310,63 @@ flows:
                 param_list: [sq_result]
 ```
 
-Here we are "chaining" the flow `square` by pre-fixing `$`. The input argument name `n` should match the name defined in the input of the flow. Since the return value of the flow is `sq_result` we print it in `print-context`. 
+Here we are "chaining" the flow `square` by pre-fixing `$`. The input argument name `n` should match the name defined in the `input` of the flow. Since the return value of the flow is `sq_result` we print it in `print-context`. 
 
 Note: The intermediate context values generated in the flow are not available in the flow which it is called. So, the `mul_val` which the `mul-num` exports in `square` is not available in `binomial`.
 
+
+### Parameterize the flow
+
+The binomial flow only computes fixed values as arguments. To make it generic, there are several units already defined which can be chained with binomial. We could define the two integers in a yaml file like below and then read it as input:
+
+```yaml
+binomial-params:
+    x: 3
+    y: 4
+```
+
+So what we need is to our flow to read x & y from the above yaml and plug that into the remaining units. We use units `load-yaml-file` & `query-dict` to achieve this.
+
+(Only the relevant part of the yaml is shown for brevity)
+```yaml
+...
+    binomial:
+        desc: Computes binomial expression
+        input:
+        output:
+        units:
+            - load-yaml-file:
+                filepath: params.yml
+            - query-dict:
+                dict_var: $yaml_data
+                pathmap:
+                    p: binomial-params/x
+                    q: binomial-params/y
+            - add-num:
+                a: $p
+                b: $q
+            - $square:
+                n: $add_val
+            - print-context:
+                param_list: [sq_result]
+```
+
+The `load-yaml-file` parses `params.yml` and returns its content as python dict `yaml_data` which is fed as input to `query-dict`. The `query-dict` as the names suggests, queries a python dict `dict_var` using paths defined in `pathmap`. Each key in `pathmap` is exported with value defined against the nested path defined as value.
+
+Do not worry if you do not understand fully what these units do. The only take-away here is that we parsed a yaml file containing params and chained them to the rest of the flow.
+
+One issue remains though. The input params file name is now hardcoded. We could take the params file name as CLI using `cli-positional` unit:
+
+```yaml
+...
+    binomial:
+        ...
+        units:
+            - cli-positional:
+                spec: [params_file]
+            - load-yaml-file:
+                filepath: $input_params_file
+        ...
+```
+
+The only change we made here is that we used `cli-positional` which parses `sys.argv` as simple positional arguments against the `spec`. For each `x` in `spec` it exports `input_x` and hence we use `input_params_file` as input in `load-yaml-file`.
