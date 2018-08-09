@@ -1,0 +1,8 @@
+[book]
+authors = ["Sudeep Jathar"]
+multilingual = false
+src = "src"
+title = "Alchemy guide"
+
+[output.html]
+mathjax-support = true

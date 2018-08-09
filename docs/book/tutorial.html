@@ -1,0 +1,435 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Tutorial - Alchemy guide</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+        <!-- MathJax -->
+        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">var path_to_root = "";</script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li><a href="tutorial.html" class="active"><strong aria-hidden="true">1.</strong> Tutorial</a></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light <span class="default">(default)</span></button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">Alchemy guide</h1> 
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <a class="header" href="#tutorial" id="tutorial"><h1>Tutorial</h1></a>
+<p>Pre-requisites:</p>
+<ol>
+<li>Alchemy is installed and is in PYTHONPATH</li>
+<li>Have read the core concepts</li>
+</ol>
+<p>Here is the objective of the tutorial:</p>
+<ol>
+<li>Create a math module, which consists of basic functions like addition &amp; multiplication</li>
+<li>Using these basic functions (also called units), compute \( (a+b)^2 \) for a given <code>a</code> &amp; <code>b</code></li>
+</ol>
+<p>While doing the above, you will learn about the follwing core concepts:</p>
+<ol>
+<li>Unit</li>
+<li>Flow - Chaining units</li>
+<li>Config files</li>
+<li>Chaining the flows</li>
+</ol>
+<a class="header" href="#math-module" id="math-module"><h3>Math module</h3></a>
+<p>Create a python module:</p>
+<pre><code class="language-bash">mkdir mymath
+touch mymath/__init__.py
+</code></pre>
+<p>Define functions for addition &amp; multiplication in <code>mymath/__init__.py</code></p>
+<pre><code class="language-python">
+def add(a, b):
+   return {'add_val': a+b}
+
+def mul(a, b):
+   return {'mul_val': a*b}
+</code></pre>
+<p>Now, returning a dict might seem to be an overkill right now, but this will be elaborated later.</p>
+<p>As stated earlier, we will &quot;chain&quot; these functions in such a way that it will compute \( (a+b)^2 \) for a given <code>a</code> &amp; <code>b</code>.</p>
+<a class="header" href="#alchemy-config" id="alchemy-config"><h3>Alchemy config</h3></a>
+<p>First we need to 'register' these functions in config file. Config file has the same name that of the module and it needs to be in the module dir as mentioned below:</p>
+<pre><code class="language-bash">touch mymath/mymath.yml
+</code></pre>
+<p>Config file is a Yaml file which needs to have the following entries, which identifies it as a Yaml file meant for Alchemy framework.
+If this basic header info is not present, then the framework will not identify it as a valid config file and will simply ignore it.</p>
+<pre><code class="language-yaml">alchemy:
+   cfg_version: 1.0
+</code></pre>
+<p>Let's register the units:</p>
+<pre><code class="language-yaml">alchemy:
+   cfg_version: 1.0
+
+include: [alchemy]
+
+units:
+    add-num:
+        desc: Adds two integers
+        func: mymath.add
+        input:
+            a: Integer 1
+            b: Integer 2
+        output:
+            add_val: Result of the addition
+    mul-num:
+        desc: Multiplies two integers
+        func: mymath.mul
+        input:
+            a: Integer 1
+            b: Integer 2
+        output:
+            mul_val: Result of the multiplication
+</code></pre>
+<p>The config defines two units, <code>add-num</code> and <code>mul-num</code>. The names can be different from the actual function name. We describe the units in terms of attributes which are explained below:</p>
+<ul>
+<li><code>desc</code>: Description of the unit</li>
+<li><code>func</code>: Importable python function described in python's dot syntax.</li>
+<li><code>input</code>: Yaml dict where each key is the input argument and value the description of the argument. The argument name should match the function name</li>
+<li><code>output</code>: Description of values items/entities which the function returns. In the <code>add</code>, we return <code>add_val</code>, so we describe it</li>
+</ul>
+<p>The <code>include: [alchemy]</code> means that we want to use all units &amp; flows defined in <code>alchemy</code> module</p>
+<p><strong>Note</strong>:</p>
+<ul>
+<li>The framework checks arguments in <code>input</code> against the actual names defined in the function. So if the names of the function arguments are changed, then the config also needs to be updated. Failing to do so will result into an error.</li>
+<li>The order of <code>a</code> &amp; <code>b</code> defined under <code>input</code> does not matter. <code>b</code> could have been very well defined first.</li>
+</ul>
+<a class="header" href="#list-units" id="list-units"><h3>List units</h3></a>
+<p>Let's see if the units &amp; the config are parsed by the framework or now.</p>
+<pre><code class="language-bash">&lt;path to alchemy dir&gt;/alchemy/alch.py listu mymath
+</code></pre>
+<p>The command <code>listu</code> lists the units defined in <code>mymath</code> module and you should see something like:</p>
+<pre><code>...
+------------------------------------------
+16  add-num
+------------------------------------------
+17  mul-num
+------------------------------------------
+...
+</code></pre>
+<p>Note:</p>
+<ul>
+<li>This assumes that you have <code>alchemy</code> &amp; <code>mymath</code> folders are in <code>PYTHONPATH</code>.</li>
+<li>The numbers <code>16</code> &amp; <code>17</code> are sequence numbers for the units and these could vary for you as more units are added in <code>alchemy</code></li>
+</ul>
+<a class="header" href="#flow" id="flow"><h3>Flow</h3></a>
+<p>We now &quot;chain&quot; the <code>add-num</code> &amp; <code>mul-num</code> units to create compute \( (a+b)^2 \). To do this, we create a flow called <code>binomial</code>:</p>
+<pre><code class="language-yaml">alchemy:
+   cfg_version: 1.0
+
+units:
+    add-num:
+        desc: Adds two integers
+        func: mymath.add
+        input:
+            a: Integer 1
+            b: Integer 2
+        output:
+            add_val: Result of the addition
+    mul-num:
+        desc: Multiplies two integers
+        func: mymath.mul
+        input:
+            a: Integer 1
+            b: Integer 2
+        output:
+            mul_val: Result of the multiplication
+
+flows:
+    binomial:
+        desc: Computes binomial expression
+        input:
+        output:
+        units:
+            - add-num:
+                a: 2
+                b: 3
+            - mul-num:
+                a: $add_val
+                b: $add_val
+            - print-context:
+                param_list: [mul_val]
+    
+</code></pre>
+<p>We define all flows under <code>flows</code> and the flow <code>binomial</code> is defined in terms of the attributes:</p>
+<ul>
+<li><code>desc</code>: Description of the flow</li>
+<li><code>input</code>: Yaml dict (which is empty here) where key is the argument name and value is its description.</li>
+<li><code>output</code>: Yaml dict (which is empty here) where key is the param which is returned by the flow and values is is description</li>
+<li><code>units</code>: List of units to be run in the sequence (note the hypens <code>-</code>)</li>
+</ul>
+<p>Let's understand how this works:</p>
+<p>Have a look at <code>add-num</code></p>
+<pre><code class="language-yaml">- add-num:
+    a: 2
+    b: 3
+</code></pre>
+<p>The unit <code>add-num</code> is called with params <code>2</code> &amp; <code>3</code>. This is equivalent to the funciton call: <code>mymath.add(2,3)</code>. The order of <code>a</code> and <code>b</code> does not matter here.</p>
+<p>The return value of this function is a dict and add its key-value's are stored in framework's context. So at the end of the <code>add</code> call, the framework has <code>add_val</code> in the context with value <code>5</code></p>
+<p>Now look at mul-num</p>
+<pre><code class="language-yaml">- mul-num:
+    a: $add_val
+    b: $add_val
+</code></pre>
+<p>This calls the function <code>mymath.mul</code>. But, the <code>$</code> tells the framework that we want to pass the value in <code>add_val</code> as argument <code>a</code> and <code>b</code>. The <code>mul</code> also returns a dict with key <code>mul_val</code>. So at the end of the <code>mul</code> call, context has <code>mul_val</code> with value <code>25</code>. It also has <code>add_val</code> still in the context.</p>
+<p>This brings us to the <code>print-context</code>.</p>
+<pre><code class="language-yaml">- print-context:
+    param_list: [mul_val]
+</code></pre>
+<p>Where is it defined? Remember the <code>include: [alchemy]</code>? It is defined in <code>alchemy</code> module. It takes the list of param names as input and prints their values on STDOUT. So here we want to see the value of <code>mul_val</code>.</p>
+<a class="header" href="#running-the-flow" id="running-the-flow"><h3>Running the flow</h3></a>
+<p>First, check if alchemy knows about our flow:</p>
+<pre><code class="language-bash">&lt;path to alchemy dir&gt;/alchemy/alch.py listf mymath
+</code></pre>
+<p>This should list the flows:</p>
+<pre><code class="language-bash">1  create-module
+2  create-module-cli
+3  thread-test
+4  binomial
+</code></pre>
+<p>The actual list you may get could be different. The important thing is that you should see the flow <code>binomial</code> in the list</p>
+<p>Let's run the flow:</p>
+<pre><code class="language-bash">&lt;path to alchemy dir&gt;/alchemy/alch.py run mymath binomial
+</code></pre>
+<p>This should give output like:</p>
+<pre><code class="language-bash">&gt;&gt; add-num
+&gt;&gt; mul-num
+&gt;&gt; print-context
+--- ctx start --
+mul_val = 25
+--- ctx end --
+</code></pre>
+<p>To recap, we chained the simple <code>add</code> &amp; <code>mul</code> to create a something complex in a simple declarative manner.</p>
+<a class="header" href="#flow-chaining" id="flow-chaining"><h3>Flow chaining</h3></a>
+<p>You can also chain other flows from a flow. So we will create a flow called <code>square</code> and use it in <code>binomial</code>:</p>
+<pre><code class="language-yaml">flows:
+    square:
+        desc: Computes a square of the an integer
+        input:
+            n: An integer
+        output:
+            sq_result: Square value of n
+        units:
+            - mul-num:
+                a: $n
+                b: $n
+            - context:
+                varmap:
+                    sq_result: $mul_val
+</code></pre>
+<p>The flow <code>square</code> takes integer described in input as <code>n: ...</code> and it promises to return the output in <code>sq_result</code> defined in <code>output</code>.</p>
+<p>The <code>context</code> is defined in <code>alchemy</code>. It defines new things in framework context like here it is defining <code>sq_result</code> as same value as that of <code>mul_val</code> (indicated by <code>$</code>). The <code>mul_val</code> is made available by <code>mul-num</code>.</p>
+<p>Let's use <code>square</code> in <code>binomial</code>:</p>
+<pre><code class="language-yaml">flows:
+    square:
+        desc: Computes a square of the an integer
+        input:
+            n: An integer
+        output:
+            sq_result: Square value of n
+        units:
+            - mul-num:
+                a: $n
+                b: $n
+            - context:
+                varmap:
+                    sq_result: $mul_val
+    binomial:
+        desc: Computes binomial expression
+        input:
+        output:
+        units:
+            - add-num:
+                a: 2
+                b: 3
+            - $square:
+                n: $add_val
+            - print-context:
+                param_list: [sq_result]
+</code></pre>
+<p>Here we are &quot;chaining&quot; the flow <code>square</code> by pre-fixing <code>$</code>. The input argument name <code>n</code> should match the name defined in the input of the flow. Since the return value of the flow is <code>sq_result</code> we print it in <code>print-context</code>.</p>
+<p>Note: The intermediate context values generated in the flow are not available in the flow which it is called. So, the <code>mul_val</code> which the <code>mul-num</code> exports in <code>square</code> is not available in <code>binomial</code>.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            var socket = new WebSocket("ws://localhost:3001");
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload(true); // force reload from server (not from cache)
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+        
+
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
